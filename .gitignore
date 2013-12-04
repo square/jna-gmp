@@ -1,0 +1,22 @@
+# IDEA
+.idea
+*.iml
+classes
+
+# Eclipse
+.classpath
+.project
+
+# Maven
+target
+pom.xml.*
+release.properties
+
+# Maven shade plugin
+dependency-reduced-pom.xml
+
+out/
+
+# libgmp
+gmp-*.tar.bz2
+gmp-*/

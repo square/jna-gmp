@@ -1,0 +1,42 @@
+# Copyright 2012, Square, Inc.
+
+GMP=gmp-5.1.3
+
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Darwin)
+
+LIBGMP=$(GMP)/.libs/libgmp.dylib
+PLATFORM=darwin
+
+else
+
+LIBGMP=$(GMP)/.libs/libgmp.so
+PLATFORM=linux-x86-64
+
+endif # TODO: other platforms.
+
+all: $(LIBGMP)
+
+$(GMP).tar.bz2:
+	curl -O https://ftp.gnu.org/gnu/gmp/$(GMP).tar.bz2
+
+$(GMP)/configure: $(GMP).tar.bz2
+	-mkdir $(GMP)
+	shasum -c $(GMP).tar.bz2.sha512
+	tar -xjf $< -C $(GMP) --strip-components 1
+	touch -c $(GMP)/configure
+
+$(GMP)/gmp.h $(GMP)/Makefile: $(GMP)/configure
+	cd $(GMP); ./configure
+
+$(LIBGMP): $(GMP)/gmp.h $(GMP)/Makefile
+	$(MAKE) -C $(GMP)/ all check
+
+install: $(LIBGMP)
+	cp -f $(GMP)/COPYING.LIB src/main/resources/COPYING.LIBGMP
+	cp -f $< src/main/resources/$(PLATFORM)
+
+clean:
+	rm -rf $(GMP)/ $(GMP).tar.bz2
+	git checkout -- src/main/resources/$(PLATFORM)
