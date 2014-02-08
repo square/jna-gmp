@@ -12,6 +12,7 @@
   <groupId>com.squareup.jna</groupId>
   <artifactId>gmp</artifactId>
   <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>JNA GMP</name>
   <description>JNA wrapper around the GNU Multiple Precision Arithmetic Library</description>

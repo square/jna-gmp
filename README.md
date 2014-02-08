@@ -33,6 +33,3 @@ back to trying a system-installed libgmp. We are missing binaries for many platf
 
 - [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 - libgmp is licensed under the [GNU LGPL](https://www.gnu.org/copyleft/lesser.html)
-
-
- [dl]: http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.squareup.jna&a=gmp&v=LATEST
