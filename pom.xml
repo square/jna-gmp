@@ -11,8 +11,8 @@
 
   <groupId>com.squareup.jna</groupId>
   <artifactId>gmp-parent</artifactId>
-  <packaging>pom</packaging>
   <version>0.9.9-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <name>JNA GMP Parent</name>
   <description>Parent module for JNA GMP wrapper around the GNU Multiple Precision Arithmetic Library</description>
@@ -45,6 +45,7 @@
 
   <modules>
     <module>jnagmp</module>
+    <module>nativersa</module>
   </modules>
 
   <properties>
