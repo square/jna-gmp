@@ -10,16 +10,21 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>jnagmp</artifactId>
+  <artifactId>bouncycastle-rsa</artifactId>
   <packaging>jar</packaging>
 
-  <description>JNA wrapper around the GNU Multiple Precision Arithmetic Library</description>
+  <description>Example using JNA modPow with Bouncy Castle</description>
 
   <dependencies>
     <dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna</artifactId>
-      <version>4.0.0</version>
+     <groupId>com.squareup.jnagmp</groupId>
+     <artifactId>jnagmp</artifactId>
+     <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.50</version>
     </dependency>
 
     <!-- TEST DEPENDENCIES -->
@@ -29,4 +34,16 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <excludes>com/squareup/crypto/rsa/NativeRSA*Engine.java</excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
