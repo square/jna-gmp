@@ -1,16 +1,20 @@
-package org.bouncycastle.crypto.engines;
+// Copy of org.bouncycastle.crypto.engines.RSAEngine
+package com.squareup.crypto.rsa;
 
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.engines.RSAEngine;
 
 /**
  * this does your basic RSA algorithm.
+ *
+ * SQUARE: replacement for {@link RSAEngine}; this is <i>much</i> faster using jna-gmp.
  */
-public class RSAEngine
+public final class NativeRSAEngine extends RSAEngine
     implements AsymmetricBlockCipher
 {
-    private RSACoreEngine core;
+    private NativeRSACoreEngine core;
 
     /**
      * initialise the RSA engine.
@@ -24,7 +28,7 @@ public class RSAEngine
     {
         if (core == null)
         {
-            core = new RSACoreEngine();
+            core = new NativeRSACoreEngine();
         }
 
         core.init(forEncryption, param);

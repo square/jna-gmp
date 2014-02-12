@@ -1,20 +1,39 @@
-package org.bouncycastle.crypto.engines;
+// Copy of org.bouncycastle.crypto.engines.RSACoreEngine
+package com.squareup.crypto.rsa;
 
+import com.squareup.jnagmp.GmpInteger;
+import java.math.BigInteger;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 
-import java.math.BigInteger;
+import static com.squareup.jnagmp.Gmp.modPowInsecure;
+import static com.squareup.jnagmp.Gmp.modPowSecure;
 
 /**
  * this does your basic RSA algorithm.
+ *
+ * SQUARE: replacement for {@code RSACoreEngine}; this is <i>much</i> faster using jna-gmp.
  */
-class RSACoreEngine
+final class NativeRSACoreEngine
 {
     private RSAKeyParameters key;
     private boolean          forEncryption;
+    private boolean          isPrivate;
+    private boolean          isSmallExponent;
+
+    // cached components for private CRT key
+    private GmpInteger p;
+    private GmpInteger q;
+    private GmpInteger dP;
+    private GmpInteger dQ;
+    private BigInteger qInv;
+
+    // cached components for public key
+    private GmpInteger exponent;
+    private GmpInteger modulus;
 
     /**
      * initialise the RSA engine.
@@ -38,6 +57,35 @@ class RSACoreEngine
         }
 
         this.forEncryption = forEncryption;
+
+        if (key instanceof RSAPrivateCrtKeyParameters)
+        {
+            isPrivate = true;
+            //
+            // we have the extra factors, use the Chinese Remainder Theorem - the author
+            // wishes to express his thanks to Dirk Bonekaemper at rtsffm.com for
+            // advice regarding the expression of this.
+            //
+            RSAPrivateCrtKeyParameters crtKey = (RSAPrivateCrtKeyParameters)key;
+
+            p = new GmpInteger(crtKey.getP());
+            q = new GmpInteger(crtKey.getQ());
+            dP = new GmpInteger(crtKey.getDP());
+            dQ = new GmpInteger(crtKey.getDQ());
+            qInv = crtKey.getQInv();
+
+            exponent = modulus = null;
+        }
+        else
+        {
+            isPrivate = false;
+            exponent = new GmpInteger(key.getExponent());
+            modulus = new GmpInteger(key.getModulus());
+            isSmallExponent = exponent.bitLength() < 64;
+
+            p = q = dP = dQ = null;
+            qInv = null;
+        }
     }
 
     /**
@@ -160,28 +208,15 @@ class RSACoreEngine
 
     public BigInteger processBlock(BigInteger input)
     {
-        if (key instanceof RSAPrivateCrtKeyParameters)
+        if (isPrivate)
         {
-            //
-            // we have the extra factors, use the Chinese Remainder Theorem - the author
-            // wishes to express his thanks to Dirk Bonekaemper at rtsffm.com for
-            // advice regarding the expression of this.
-            //
-            RSAPrivateCrtKeyParameters crtKey = (RSAPrivateCrtKeyParameters)key;
-
-            BigInteger p = crtKey.getP();
-            BigInteger q = crtKey.getQ();
-            BigInteger dP = crtKey.getDP();
-            BigInteger dQ = crtKey.getDQ();
-            BigInteger qInv = crtKey.getQInv();
-
             BigInteger mP, mQ, h, m;
 
             // mP = ((input mod p) ^ dP)) mod p
-            mP = (input.remainder(p)).modPow(dP, p);
+            mP = modPowSecure(input.remainder(p), dP, p);
 
             // mQ = ((input mod q) ^ dQ)) mod q
-            mQ = (input.remainder(q)).modPow(dQ, q);
+            mQ = modPowSecure(input.remainder(q), dQ, q);
 
             // h = qInv * (mP - mQ) mod p
             h = mP.subtract(mQ);
@@ -196,8 +231,16 @@ class RSACoreEngine
         }
         else
         {
-            return input.modPow(
-                        key.getExponent(), key.getModulus());
+            if (isSmallExponent)
+            {
+                // Public key with reasonable (small) exponent, no need for secure.
+                return modPowInsecure(input, exponent, modulus);
+            }
+            else
+            {
+                // Client mistakenly configured private key as public? Better be safe than sorry.
+                return modPowSecure(input, exponent, modulus);
+            }
         }
     }
 }
