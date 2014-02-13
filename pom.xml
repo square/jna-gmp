@@ -11,7 +11,7 @@
 
   <groupId>com.squareup.jnagmp</groupId>
   <artifactId>jnagmp-parent</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <description>Parent module for JNA GMP wrapper around the GNU Multiple Precision Arithmetic Library</description>
@@ -21,7 +21,7 @@
     <url>https://github.com/square/jna-gmp</url>
     <connection>scm:git:https://github.com/square/jna-gmp.git</connection>
     <developerConnection>scm:git:git@github.com:square/jna-gmp.git</developerConnection>
-    <tag>jnagmp-parent-1.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <organization>
