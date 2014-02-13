@@ -11,7 +11,7 @@ The basic JNA GMP library; minimal dependencies.
 
 Available on Maven central as `com.squareup.jnagmp:jnagmp`.
 
-### [nativersa](nativersa/README.md)
+### [bc-rsa](bc-rsa/README.md)
 
 Example module that shows integrating JNA GMP with Bouncy Castle.
 

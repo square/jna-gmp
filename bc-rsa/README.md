@@ -1,4 +1,4 @@
-# Native RSA
+# Bouncy Castle RSA
 
 Example module that shows integrating JNA GMP with Bouncy Castle.
 
@@ -6,4 +6,4 @@ Example module that shows integrating JNA GMP with Bouncy Castle.
 
 ### NativeRSAEngine
 
-A replacement for org.bouncycastle.crypto.engines.RSAEngine that uses GMP modPow.
+A replacement for `org.bouncycastle.crypto.engines.RSAEngine` that uses GMP modPow.
