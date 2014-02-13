@@ -7,12 +7,10 @@
     <groupId>com.squareup.jnagmp</groupId>
     <artifactId>jnagmp-parent</artifactId>
     <version>0.9.9-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>bouncycastle-rsa</artifactId>
-  <packaging>jar</packaging>
-
+  <name>Bouncy Castle RSA</name>
   <description>Example using JNA modPow with Bouncy Castle</description>
 
   <dependencies>

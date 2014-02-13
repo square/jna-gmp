@@ -7,12 +7,10 @@
     <groupId>com.squareup.jnagmp</groupId>
     <artifactId>jnagmp-parent</artifactId>
     <version>0.9.9-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>jnagmp</artifactId>
-  <packaging>jar</packaging>
-
+  <name>JNA GMP</name>
   <description>JNA wrapper around the GNU Multiple Precision Arithmetic Library</description>
 
   <dependencies>
