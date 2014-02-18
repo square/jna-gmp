@@ -200,7 +200,7 @@ public class GmpTest {
   @Test public void testSmallExhaustiveSecure() {
     for (int base = 10; base >= 0; --base) {
       for (int exp = 10; exp >= 0; --exp) {
-        for (int mod : new int[] {11, 9, 7, 5, 3, 1, 0, -1}) {
+        for (int mod = 10; mod >= -1; --mod) {
           this.strategy = JAVA;
           Object expected;
           try {
@@ -216,8 +216,13 @@ public class GmpTest {
           } catch (Exception e) {
             actual = e.getClass();
           }
-          String message = String.format("base %d, exp %d, mod %d", base, exp, mod);
-          assertEquals(message, expected, actual);
+          if (mod > 0 && mod % 2 == 0) {
+            // modPowSecure does not support even modulus
+            assertEquals(IllegalArgumentException.class, actual);
+          } else {
+            String message = String.format("base %d, exp %d, mod %d", base, exp, mod);
+            assertEquals(message, expected, actual);
+          }
         }
       }
     }
