@@ -87,10 +87,10 @@ public final class Gmp {
       throw new ArithmeticException("modulus must be positive");
     }
     if (base.signum() < 0) {
-      throw new IllegalArgumentException("modulus must be non-negative");
+      throw new IllegalArgumentException("base must be non-negative");
     }
     if (exponent.signum() < 0) {
-      throw new IllegalArgumentException("modulus must be non-negative");
+      throw new IllegalArgumentException("exponent must be non-negative");
     }
     return INSTANCE.get().modPowInsecureImpl(base, exponent, modulus);
   }
@@ -112,11 +112,14 @@ public final class Gmp {
     if (modulus.signum() <= 0) {
       throw new ArithmeticException("modulus must be positive");
     }
+    if (!modulus.testBit(0)) {
+      throw new IllegalArgumentException("modulus must be odd");
+    }
     if (base.signum() < 0) {
-      throw new IllegalArgumentException("modulus must be non-negative");
+      throw new IllegalArgumentException("base must be non-negative");
     }
     if (exponent.signum() < 0) {
-      throw new IllegalArgumentException("modulus must be non-negative");
+      throw new IllegalArgumentException("exponent must be non-negative");
     }
     return INSTANCE.get().modPowSecureImpl(base, exponent, modulus);
   }
