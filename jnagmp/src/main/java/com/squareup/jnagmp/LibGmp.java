@@ -55,7 +55,7 @@ public final class LibGmp {
   private static void loadLibGmp() {
     try {
       // Explicitly try to load the embedded version first.
-      File file = Native.extractFromResourcePath("gmp");
+      File file = Native.extractFromResourcePath("gmp", LibGmp.class.getClassLoader());
       load(file.getAbsolutePath());
       return;
     } catch (Exception ignored) {
@@ -66,7 +66,7 @@ public final class LibGmp {
   }
 
   private static void load(String name) {
-    NativeLibrary library = NativeLibrary.getInstance(name);
+    NativeLibrary library = NativeLibrary.getInstance(name, LibGmp.class.getClassLoader());
     Native.register(LibGmp.class, library);
     Native.register(SIZE_T_CLASS, library);
   }
