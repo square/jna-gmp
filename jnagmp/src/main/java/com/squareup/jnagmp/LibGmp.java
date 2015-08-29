@@ -26,7 +26,6 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import java.io.File;
 
 /** Direct JNA mappings to select libgmp functions. */
 public final class LibGmp {
@@ -53,20 +52,7 @@ public final class LibGmp {
   }
 
   private static void loadLibGmp() {
-    try {
-      // Explicitly try to load the embedded version first.
-      File file = Native.extractFromResourcePath("gmp", LibGmp.class.getClassLoader());
-      load(file.getAbsolutePath());
-      return;
-    } catch (Exception ignored) {
-    } catch (UnsatisfiedLinkError ignored) {
-    }
-    // Fall back to system-wide search.
-    load("gmp");
-  }
-
-  private static void load(String name) {
-    NativeLibrary library = NativeLibrary.getInstance(name, LibGmp.class.getClassLoader());
+    NativeLibrary library = NativeLibrary.getInstance("gmp", LibGmp.class.getClassLoader());
     Native.register(LibGmp.class, library);
     Native.register(SIZE_T_CLASS, library);
   }
