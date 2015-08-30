@@ -305,7 +305,7 @@ public final class LibGmp {
   /**
    * Set rop to (base raised to exp) modulo mod.
    *
-   * It is required that exp > 0 and that mod is odd.
+   * It is required that exp &gt; 0 and that mod is odd.
    *
    * This function is designed to take the same time and have the same cache access patterns for any
    * two same-size arguments, assuming that function arguments are placed at the same position and
