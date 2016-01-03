@@ -24,6 +24,7 @@ Available on Maven central as `com.squareup.jnagmp:bouncycastle-rsa`.
 - Daniele Perito <daniele@squareup.com>
 - Josh Humphries <jh@squareup.com>
 - Sam Quigley <sq@squareup.com>
+- Elijah Zupancic <elijah.zupancic@joyent.com> - Solaris binary build
 
 ## Licensing
 

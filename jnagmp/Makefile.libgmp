@@ -9,10 +9,15 @@ ifeq ($(UNAME), Darwin)
 LIBGMP=$(GMP)/.libs/libgmp.dylib
 PLATFORM=darwin
 
-else
+else ifeq ($(UNAME), Linux)
 
 LIBGMP=$(GMP)/.libs/libgmp.so
 PLATFORM=linux-x86-64
+
+else ifeq ($(UNAME), SunOS)
+
+LIBGMP=$(GMP)/.libs/libgmp.so
+PLATFORM=sunos-x86-64
 
 endif # TODO: other platforms.
 
