@@ -35,7 +35,8 @@ $(LIBGMP): $(GMP)/gmp.h $(GMP)/Makefile
 
 install: $(LIBGMP)
 	cp -f $(GMP)/COPYING.LIB src/main/resources/COPYING.LIBGMP
-	cp -f $< src/main/resources/$(PLATFORM)
+	mkdir -p src/main/resources/$(PLATFORM)
+	cp -f $< src/main/resources/$(PLATFORM)/
 
 clean:
 	rm -rf $(GMP)/ $(GMP).tar.bz2
