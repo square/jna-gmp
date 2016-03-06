@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 1.1.0 *(2016-03-06)*
+----------------------------
+
+ * New: Support for x86-64 Solaris 10, SmartOS, and Illumos.
+
+
 Version 1.0.1 *(2015-08-30)*
 ----------------------------
 
