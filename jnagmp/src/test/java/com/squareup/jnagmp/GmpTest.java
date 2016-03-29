@@ -125,29 +125,30 @@ public class GmpTest {
     strategy = SECURE_GMP_INTS;
     testOddExamples();
   }
-  
+
   @Test
   public void testModInverse() {
-    assertEquals(BigInteger.valueOf(2), Gmp.modInverse(BigInteger.valueOf(3), BigInteger.valueOf(5)));
+    assertEquals(BigInteger.valueOf(2),
+        Gmp.modInverse(BigInteger.valueOf(3), BigInteger.valueOf(5)));
     Random rnd = new Random();
     BigInteger m = new BigInteger(1024, rnd).nextProbablePrime();
-    for (int i=0; i<100; i++){ 
+    for (int i = 0; i < 100; i++) {
       BigInteger x = new BigInteger(1023, rnd);
       assertEquals(x.modInverse(m), Gmp.modInverse(x, m));
     }
   }
-  
+
   @Test
   public void testModInverseArithmeticException() {
-    try{
+    try {
       Gmp.modInverse(BigInteger.ONE, BigInteger.valueOf(-1));
       fail("ArithmeticException expected.");
-    } catch(ArithmeticException e) {      
+    } catch (ArithmeticException e) {
     }
-    try{
+    try {
       Gmp.modInverse(BigInteger.valueOf(3), BigInteger.valueOf(9));
       fail("ArithmeticException expected.");
-    } catch(ArithmeticException e) {      
+    } catch (ArithmeticException e) {
     }
   }
 
