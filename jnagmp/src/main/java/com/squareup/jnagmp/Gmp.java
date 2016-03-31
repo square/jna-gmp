@@ -25,6 +25,7 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_clear;
 import static com.squareup.jnagmp.LibGmp.__gmpz_export;
 import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
+import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
@@ -125,6 +126,21 @@ public final class Gmp {
   }
 
   /**
+   * Calculate val^-1 % modulus.
+   *
+   * @param val must be positive
+   * @param modulus the modulus
+   * @return val^-1 % modulus
+   * @throws ArithmeticException if modulus is non-positive or val is not invertible
+   */
+  public static BigInteger modInverse(BigInteger val, BigInteger modulus) {
+    if (modulus.signum() != 1) {
+      throw new ArithmeticException("modulus must be not zero and positive");
+    }
+    return INSTANCE.get().modInverseImpl(val, modulus);
+  }
+
+  /**
    * VISIBLE FOR TESTING. Reuse the same buffers over and over to minimize allocations and native
    * boundary crossings.
    */
@@ -202,6 +218,20 @@ public final class Gmp {
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
     return new BigInteger(1, mpzExport(sharedOperands[3], requiredSize));
+  }
+
+  private BigInteger modInverseImpl(BigInteger val, BigInteger mod) {
+    mpz_t valPeer = getPeer(val, sharedOperands[0]);
+    mpz_t modPeer = getPeer(mod, sharedOperands[1]);
+
+    int res = __gmpz_invert(sharedOperands[2], valPeer, modPeer);
+    if (res == 0) {
+      throw new ArithmeticException("BigInteger not ivertible");
+    }
+
+ // The result size should be <= modulus size, but round up to the nearest byte.
+    int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(1, mpzExport(sharedOperands[2], requiredSize));
   }
 
   /**
