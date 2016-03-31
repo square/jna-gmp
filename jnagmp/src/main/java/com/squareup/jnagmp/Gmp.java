@@ -134,8 +134,8 @@ public final class Gmp {
    * @throws ArithmeticException if modulus is non-positive or val is not invertible
    */
   public static BigInteger modInverse(BigInteger val, BigInteger modulus) {
-    if (modulus.signum() != 1) {
-      throw new ArithmeticException("modulus must be not zero and positive");
+    if (modulus.signum() <= 0) {
+      throw new ArithmeticException("modulus must be positive");
     }
     return INSTANCE.get().modInverseImpl(val, modulus);
   }
@@ -226,10 +226,10 @@ public final class Gmp {
 
     int res = __gmpz_invert(sharedOperands[2], valPeer, modPeer);
     if (res == 0) {
-      throw new ArithmeticException("BigInteger not ivertible");
+      throw new ArithmeticException("val not invertible");
     }
 
- // The result size should be <= modulus size, but round up to the nearest byte.
+    // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
     return new BigInteger(1, mpzExport(sharedOperands[2], requiredSize));
   }

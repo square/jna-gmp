@@ -317,11 +317,11 @@ public final class LibGmp {
   /**
    * Compute the inverse of op1 modulo op2 and put the result in rop. If the inverse exists, the
    * return value is non-zero and rop will satisfy 0 <= rop < abs(op2) (with rop = 0 possible only
-   * when abs(op2) = 1, i.e., in the somewhat degenerate zero ring). If an inverse doesn’t exist
-   * the return value is zero and rop is undefined. The behaviour of this function is undefined when
-   * op2 is zero.
+   * when abs(op2) = 1, i.e., in the somewhat degenerate zero ring). If an inverse doesn’t exist the
+   * return value is zero and rop is undefined. The behaviour of this function is undefined when op2
+   * is zero.
    */
-  public static native int  __gmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2);
+  public static native int __gmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2);
 
   private LibGmp() {
   }
