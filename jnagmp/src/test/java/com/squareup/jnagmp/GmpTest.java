@@ -17,11 +17,13 @@ package com.squareup.jnagmp;
 
 import com.squareup.jnagmp.ModPowVectors.TestVector;
 import java.math.BigInteger;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static com.squareup.jnagmp.Gmp.modInverse;
 import static com.squareup.jnagmp.Gmp.modPowInsecure;
 import static com.squareup.jnagmp.Gmp.modPowSecure;
 import static org.junit.Assert.assertEquals;
@@ -123,6 +125,52 @@ public class GmpTest {
   @Test public void testExamplesSecureGmpInts() {
     strategy = SECURE_GMP_INTS;
     testOddExamples();
+  }
+
+  @Test
+  public void testModInverse() {
+    assertEquals(BigInteger.valueOf(2),
+        modInverse(BigInteger.valueOf(3), BigInteger.valueOf(5)));
+    Random rnd = new Random();
+    BigInteger m = new BigInteger(1024, rnd).nextProbablePrime();
+    for (int i = 0; i < 100; i++) {
+      BigInteger x = new BigInteger(1023, rnd);
+      assertEquals(x.modInverse(m), modInverse(x, m));
+    }
+  }
+
+  @Test public void testModInverseSmallExhaustive() {
+    for (int val = 10; val >= 0; --val) {
+      for (int mod = 10; mod >= -1; --mod) {
+        BigInteger bVal = BigInteger.valueOf(val);
+        BigInteger bMod = BigInteger.valueOf(mod);
+        try {
+          BigInteger expected = bVal.modInverse(bMod);
+          BigInteger actual = modInverse(bVal, bMod);
+          assertEquals(String.format("val %d, mod %d", val, mod) + mod, expected, actual);
+        } catch (ArithmeticException e) {
+          try {
+            modInverse(bVal, bMod);
+            fail("ArithmeticException expected");
+          } catch (ArithmeticException expected) {
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void testModInverseArithmeticException() {
+    try {
+      modInverse(BigInteger.ONE, BigInteger.valueOf(-1));
+      fail("ArithmeticException expected");
+    } catch (ArithmeticException expected) {
+    }
+    try {
+      modInverse(BigInteger.valueOf(3), BigInteger.valueOf(9));
+      fail("ArithmeticException expected");
+    } catch (ArithmeticException expected) {
+    }
   }
 
   private void testOddExamples() {

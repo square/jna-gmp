@@ -27,6 +27,7 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_export;
 import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init2;
+import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
@@ -187,6 +188,34 @@ public class LibGmpTest {
 
       assertEquals(1, readSizeT(count));
       assertEquals(3, scratch.getByte(0));
+    } finally {
+      for (mpz_t mvalue : mvalues) {
+        if (mvalue != null) {
+          __gmpz_clear(mvalue);
+        }
+      }
+    }
+  }
+
+  @Test public void testModInverse() {
+    scratch.write(0, new byte[] {3, 5}, 0, 2);
+    mpz_t[] mvalues = new mpz_t[2];
+    try {
+      for (int i = 0; i < 2; ++i) {
+        mpz_t mvalue = new mpz_t(mpzScratch.share(i * mpz_t.SIZE, mpz_t.SIZE));
+        __gmpz_init(mvalue);
+        mvalues[i] = mvalue;
+        __gmpz_import(mvalue, 1, 1, 1, 1, 0, scratch.share(i));
+      }
+
+      // We can reuse the modulus for the result, result must be < modulus.
+      mpz_t result = mvalues[1];
+      __gmpz_invert(result, mvalues[0], mvalues[1]);
+
+      __gmpz_export(scratch, count, 1, 1, 1, 0, result);
+
+      assertEquals(1, readSizeT(count));
+      assertEquals(2, scratch.getByte(0));
     } finally {
       for (mpz_t mvalue : mvalues) {
         if (mvalue != null) {
