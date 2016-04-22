@@ -323,6 +323,11 @@ public final class LibGmp {
    */
   public static native int __gmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2);
 
+  /**
+   * Compute the legendre symbol a|p and return the result.
+   */
+  public static native int __gmpz_legendre(mpz_t a, mpz_t p);
+
   private LibGmp() {
   }
 }

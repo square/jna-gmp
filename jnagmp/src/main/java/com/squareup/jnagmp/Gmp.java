@@ -28,6 +28,7 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
+import static com.squareup.jnagmp.LibGmp.__gmpz_legendre;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
 
 /** High level Java API for accessing {@link LibGmp} safely. */
@@ -56,6 +57,7 @@ public final class Gmp {
     }
     // Make a test call, sometimes the error won't occur until you try the native method.
     // 2 ^ 3 = 8, 8 mod 5 = 3
+    BigInteger four = BigInteger.valueOf(4);
     BigInteger two = BigInteger.valueOf(2);
     BigInteger three = BigInteger.valueOf(3);
     BigInteger five = BigInteger.valueOf(5);
@@ -69,6 +71,11 @@ public final class Gmp {
     answer = modPowSecure(two, three, five);
     if (!three.equals(answer)) {
       throw new AssertionError("libgmp is loaded but modPowSecure returned the wrong answer");
+    }
+
+    int ans = legendre(four, five);
+    if (ans != 1) {
+      throw new AssertionError("libgmp is loaded but legendre returned the wrong answer");
     }
   }
 
@@ -138,6 +145,27 @@ public final class Gmp {
       throw new ArithmeticException("modulus must be positive");
     }
     return INSTANCE.get().modInverseImpl(val, modulus);
+  }
+
+  /**
+   * Calculate legendre symbol a|p
+   *
+   * @param a must be positive
+   * @param p the modulus
+   * @return a|p
+   * @throws ArithmeticException if a is not positive, or p is not positive, or p is not odd
+   */
+  public static int legendre(BigInteger a, BigInteger p) {
+    if (a.signum() <= 0) {
+      throw new ArithmeticException("a must be positive");
+    }
+    if (p.signum() <= 0) {
+      throw new ArithmeticException("p must be positive");
+    }
+    if (!p.testBit(0)) {
+      throw new IllegalArgumentException("p must be odd");
+    }
+    return INSTANCE.get().legendreImpl(a, p);
   }
 
   /**
@@ -232,6 +260,15 @@ public final class Gmp {
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
     return new BigInteger(1, mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private int legendreImpl(BigInteger a, BigInteger p) {
+    mpz_t aPeer = getPeer(a, sharedOperands[0]);
+    mpz_t pPeer = getPeer(p, sharedOperands[1]);
+
+    int res = __gmpz_legendre(aPeer, pPeer);
+
+    return res;
   }
 
   /**
