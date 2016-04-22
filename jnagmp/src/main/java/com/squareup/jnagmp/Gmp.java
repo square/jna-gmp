@@ -28,6 +28,7 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_export;
 import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
+import static com.squareup.jnagmp.LibGmp.__gmpz_jacobi;
 import static com.squareup.jnagmp.LibGmp.__gmpz_neg;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
@@ -61,6 +62,7 @@ public final class Gmp {
     // 2 ^ 3 = 8, 8 mod 5 = 3
     BigInteger two = BigInteger.valueOf(2);
     BigInteger three = BigInteger.valueOf(3);
+    BigInteger four = BigInteger.valueOf(4);
     BigInteger five = BigInteger.valueOf(5);
     BigInteger answer;
 
@@ -73,6 +75,22 @@ public final class Gmp {
     if (!three.equals(answer)) {
       throw new AssertionError("libgmp is loaded but modPowSecure returned the wrong answer");
     }
+
+    int answr = kronecker(four, five);
+    if (answr != 1) {
+      throw new AssertionError("libgmp is loaded but kronecker returned the wrong answer");
+    }
+  }
+
+  /**
+   * Calculate kronecker symbol a|p.  Generalization of legendre and jacobi.
+   *
+   * @param a an integer
+   * @param p the modulus
+   * @return a|p
+   */
+  public static int kronecker(BigInteger a, BigInteger p) {
+    return INSTANCE.get().kroneckerImpl(a, p);
   }
 
   /**
@@ -197,6 +215,13 @@ public final class Gmp {
     this.countPtr = sharedMem.share(offset, Native.SIZE_T_SIZE);
     offset += Native.SIZE_T_SIZE;
     assert offset == SHARED_MEM_SIZE;
+  }
+
+  private int kroneckerImpl(BigInteger a, BigInteger p) {
+    mpz_t aPeer = getPeer(a, sharedOperands[0]);
+    mpz_t pPeer = getPeer(p, sharedOperands[1]);
+
+    return __gmpz_jacobi(aPeer, pPeer);
   }
 
   private BigInteger modPowInsecureImpl(BigInteger base, BigInteger exp, BigInteger mod) {

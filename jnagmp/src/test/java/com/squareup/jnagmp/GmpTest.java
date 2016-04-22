@@ -23,6 +23,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static com.squareup.jnagmp.Gmp.kronecker;
 import static com.squareup.jnagmp.Gmp.modInverse;
 import static com.squareup.jnagmp.Gmp.modPowInsecure;
 import static com.squareup.jnagmp.Gmp.modPowSecure;
@@ -171,6 +172,52 @@ public class GmpTest {
       fail("ArithmeticException expected");
     } catch (ArithmeticException expected) {
     }
+  }
+
+  @Test
+  public void testKronecker() {
+    // Prime (legendre)
+    assertEquals(0, kronecker(BigInteger.valueOf(0), BigInteger.valueOf(7)));
+    assertEquals(1, kronecker(BigInteger.valueOf(1), BigInteger.valueOf(7)));
+    assertEquals(1, kronecker(BigInteger.valueOf(2), BigInteger.valueOf(7)));
+    assertEquals(-1, kronecker(BigInteger.valueOf(3), BigInteger.valueOf(7)));
+    assertEquals(1, kronecker(BigInteger.valueOf(4), BigInteger.valueOf(7)));
+    assertEquals(-1, kronecker(BigInteger.valueOf(5), BigInteger.valueOf(7)));
+    assertEquals(-1, kronecker(BigInteger.valueOf(6), BigInteger.valueOf(7)));
+    assertEquals(0, kronecker(BigInteger.valueOf(7), BigInteger.valueOf(7)));
+
+    // Non-prime odd (jacobi)
+    assertEquals(0, kronecker(BigInteger.valueOf(0), BigInteger.valueOf(9)));
+    assertEquals(1, kronecker(BigInteger.valueOf(1), BigInteger.valueOf(9)));
+    assertEquals(1, kronecker(BigInteger.valueOf(2), BigInteger.valueOf(9)));
+    assertEquals(0, kronecker(BigInteger.valueOf(3), BigInteger.valueOf(9)));
+    assertEquals(1, kronecker(BigInteger.valueOf(4), BigInteger.valueOf(9)));
+    assertEquals(1, kronecker(BigInteger.valueOf(5), BigInteger.valueOf(9)));
+    assertEquals(0, kronecker(BigInteger.valueOf(6), BigInteger.valueOf(9)));
+    assertEquals(1, kronecker(BigInteger.valueOf(7), BigInteger.valueOf(9)));
+    assertEquals(1, kronecker(BigInteger.valueOf(8), BigInteger.valueOf(9)));
+    assertEquals(0, kronecker(BigInteger.valueOf(9), BigInteger.valueOf(9)));
+
+    // Anything (kronecker)
+    assertEquals(0, kronecker(BigInteger.valueOf(0), BigInteger.valueOf(8)));
+    assertEquals(1, kronecker(BigInteger.valueOf(1), BigInteger.valueOf(8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(2), BigInteger.valueOf(8)));
+    assertEquals(-1, kronecker(BigInteger.valueOf(3), BigInteger.valueOf(8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(4), BigInteger.valueOf(8)));
+    assertEquals(-1, kronecker(BigInteger.valueOf(5), BigInteger.valueOf(8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(6), BigInteger.valueOf(8)));
+    assertEquals(1, kronecker(BigInteger.valueOf(7), BigInteger.valueOf(8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(8), BigInteger.valueOf(8)));
+
+    assertEquals(0, kronecker(BigInteger.valueOf(0), BigInteger.valueOf(-8)));
+    assertEquals(1, kronecker(BigInteger.valueOf(1), BigInteger.valueOf(-8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(2), BigInteger.valueOf(-8)));
+    assertEquals(-1, kronecker(BigInteger.valueOf(3), BigInteger.valueOf(-8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(4), BigInteger.valueOf(-8)));
+    assertEquals(-1, kronecker(BigInteger.valueOf(5), BigInteger.valueOf(-8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(6), BigInteger.valueOf(-8)));
+    assertEquals(1, kronecker(BigInteger.valueOf(7), BigInteger.valueOf(-8)));
+    assertEquals(0, kronecker(BigInteger.valueOf(8), BigInteger.valueOf(-8)));
   }
 
   private void testOddExamples() {

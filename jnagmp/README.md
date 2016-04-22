@@ -18,6 +18,10 @@ performance improvement would be on the order of 5x faster than Java.
 
 A faster version of BigInteger.modInverse()
 
+### kronecker (jacobi, legendre)
+
+The GMP kronecker implementation generalizes jacobi and legendre symbols.
+
 ##Notes
 
 - The maven artifact/jar embeds a precompiled libgmp for some platforms.  LibGmp will

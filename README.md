@@ -28,6 +28,7 @@ Available on Maven central as `com.squareup.jnagmp:bouncycastle-rsa`.
 - Christian Meier <meier.kristian@gmail.com> - classloader fix
 - Elijah Zupancic <elijah.zupancic@joyent.com> - Solaris binary build
 - Wilko Henecka <wilko.henecka@nicta.com.au> - modInverse
+- David Ruescas <fastness@gmail.com> - kronecker
 
 ## Licensing
 
