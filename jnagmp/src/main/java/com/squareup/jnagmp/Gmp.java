@@ -157,7 +157,7 @@ public final class Gmp {
    */
   public static int legendre(BigInteger a, BigInteger p) {
     if (a.signum() <= 0) {
-      throw new IllegalArgumentException("add must be positive");
+      throw new IllegalArgumentException("a must be positive");
     }
     if (p.signum() <= 0) {
       throw new IllegalArgumentException("p must be positive");
