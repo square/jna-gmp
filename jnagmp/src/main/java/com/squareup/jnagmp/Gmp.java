@@ -156,11 +156,11 @@ public final class Gmp {
    * @throws IllegalArgumentException if a is not positive, or p is not positive, or p is not odd
    */
   public static int legendre(BigInteger a, BigInteger p) {
-    if (a.signum() <= 0) {
-      throw new IllegalArgumentException("a must be positive");
+    if (a.signum() < 0) {
+      throw new IllegalArgumentException("a must be non-negative");
     }
-    if (p.signum() <= 0) {
-      throw new IllegalArgumentException("p must be positive");
+    if (p.signum() < 0) {
+      throw new IllegalArgumentException("p must be non-negative");
     }
     if (!p.testBit(0)) {
       throw new IllegalArgumentException("p must be odd");
