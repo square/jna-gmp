@@ -151,13 +151,13 @@ public final class Gmp {
    * Calculate legendre symbol a|p
    *
    * @param a must be positive
-   * @param p the modulus
+   * @param p the modulus must be odd
    * @return a|p
-   * @throws ArithmeticException if a is not positive, or p is not positive, or p is not odd
+   * @throws IllegalArgumentException if a is not positive, or p is not positive, or p is not odd
    */
   public static int legendre(BigInteger a, BigInteger p) {
     if (a.signum() <= 0) {
-      throw new IllegalArgumentException("a must be positive");
+      throw new IllegalArgumentException("add must be positive");
     }
     if (p.signum() <= 0) {
       throw new IllegalArgumentException("p must be positive");
