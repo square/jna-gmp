@@ -148,7 +148,7 @@ public final class Gmp {
   }
 
   /**
-   * Calculate legendre symbol a|p
+   * Calculate legendre symbol a|p.
    *
    * @param a must be positive
    * @param p the modulus must be odd
