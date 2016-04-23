@@ -324,7 +324,8 @@ public final class LibGmp {
   public static native int __gmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2);
 
   /**
-   * Compute the legendre symbol a|p and return the result.
+   * Calculate the Legendre symbol (a/p). This is defined only for p an odd positive prime, and
+   * for such p it’s identical to the Jacobi symbol.
    */
   public static native int __gmpz_legendre(mpz_t a, mpz_t p);
 
