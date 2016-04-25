@@ -24,8 +24,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.squareup.jnagmp.Gmp.jacobi;
-import static com.squareup.jnagmp.Gmp.kronecker;
-import static com.squareup.jnagmp.Gmp.legendre;
 import static com.squareup.jnagmp.Gmp.modInverse;
 import static com.squareup.jnagmp.Gmp.modPowInsecure;
 import static com.squareup.jnagmp.Gmp.modPowSecure;
@@ -180,12 +178,12 @@ public class GmpTest {
   public void testJacobi() {
     try {
       jacobi(BigInteger.valueOf(-1), BigInteger.ONE);
-      fail("IllegalArgumentException expected (a must be positive)");
+      fail("IllegalArgumentException expected (a must be non-negative)");
     } catch (IllegalArgumentException expected) {
     }
     try {
       jacobi(BigInteger.ONE, BigInteger.valueOf(-1));
-      fail("IllegalArgumentException expected (p must be positive)");
+      fail("IllegalArgumentException expected (p must be non-negative)");
     } catch (IllegalArgumentException expected) {
     }
     try {
@@ -193,6 +191,15 @@ public class GmpTest {
       fail("IllegalArgumentException expected (p must be odd)");
     } catch (IllegalArgumentException expected) {
     }
+
+    assertEquals(0, jacobi(BigInteger.valueOf(0), BigInteger.valueOf(7)));
+    assertEquals(1, jacobi(BigInteger.valueOf(1), BigInteger.valueOf(7)));
+    assertEquals(1, jacobi(BigInteger.valueOf(2), BigInteger.valueOf(7)));
+    assertEquals(-1, jacobi(BigInteger.valueOf(3), BigInteger.valueOf(7)));
+    assertEquals(1, jacobi(BigInteger.valueOf(4), BigInteger.valueOf(7)));
+    assertEquals(-1, jacobi(BigInteger.valueOf(5), BigInteger.valueOf(7)));
+    assertEquals(-1, jacobi(BigInteger.valueOf(6), BigInteger.valueOf(7)));
+    assertEquals(0, jacobi(BigInteger.valueOf(7), BigInteger.valueOf(7)));
 
     assertEquals(0, jacobi(BigInteger.valueOf(0), BigInteger.valueOf(9)));
     assertEquals(1, jacobi(BigInteger.valueOf(1), BigInteger.valueOf(9)));
@@ -204,57 +211,6 @@ public class GmpTest {
     assertEquals(1, jacobi(BigInteger.valueOf(7), BigInteger.valueOf(9)));
     assertEquals(1, jacobi(BigInteger.valueOf(8), BigInteger.valueOf(9)));
     assertEquals(0, jacobi(BigInteger.valueOf(9), BigInteger.valueOf(9)));
-  }
-
-  @Test
-  public void testKronecker() {
-    assertEquals(0, kronecker(BigInteger.valueOf(0), 8));
-    assertEquals(1, kronecker(BigInteger.valueOf(1), 8));
-    assertEquals(0, kronecker(BigInteger.valueOf(2), 8));
-    assertEquals(-1, kronecker(BigInteger.valueOf(3), 8));
-    assertEquals(0, kronecker(BigInteger.valueOf(4), 8));
-    assertEquals(-1, kronecker(BigInteger.valueOf(5), 8));
-    assertEquals(0, kronecker(BigInteger.valueOf(6), 8));
-    assertEquals(1, kronecker(BigInteger.valueOf(7), 8));
-    assertEquals(0, kronecker(BigInteger.valueOf(8), 8));
-
-    assertEquals(0, kronecker(BigInteger.valueOf(0), -8));
-    assertEquals(1, kronecker(BigInteger.valueOf(1), -8));
-    assertEquals(0, kronecker(BigInteger.valueOf(2), -8));
-    assertEquals(-1, kronecker(BigInteger.valueOf(3), -8));
-    assertEquals(0, kronecker(BigInteger.valueOf(4), -8));
-    assertEquals(-1, kronecker(BigInteger.valueOf(5), -8));
-    assertEquals(0, kronecker(BigInteger.valueOf(6), -8));
-    assertEquals(1, kronecker(BigInteger.valueOf(7), -8));
-    assertEquals(0, kronecker(BigInteger.valueOf(8), -8));
-  }
-
-  @Test
-  public void testLegendre() {
-    try {
-      legendre(BigInteger.valueOf(-1), BigInteger.ONE);
-      fail("IllegalArgumentException expected (a must be non-negative)");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      legendre(BigInteger.ONE, BigInteger.valueOf(-1));
-      fail("IllegalArgumentException expected (p must be non-negative)");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      legendre(BigInteger.ONE, BigInteger.valueOf(2));
-      fail("IllegalArgumentException expected (p must be odd)");
-    } catch (IllegalArgumentException expected) {
-    }
-
-    assertEquals(0, legendre(BigInteger.valueOf(0), BigInteger.valueOf(7)));
-    assertEquals(1, legendre(BigInteger.valueOf(1), BigInteger.valueOf(7)));
-    assertEquals(1, legendre(BigInteger.valueOf(2), BigInteger.valueOf(7)));
-    assertEquals(-1, legendre(BigInteger.valueOf(3), BigInteger.valueOf(7)));
-    assertEquals(1, legendre(BigInteger.valueOf(4), BigInteger.valueOf(7)));
-    assertEquals(-1, legendre(BigInteger.valueOf(5), BigInteger.valueOf(7)));
-    assertEquals(-1, legendre(BigInteger.valueOf(6), BigInteger.valueOf(7)));
-    assertEquals(0, legendre(BigInteger.valueOf(7), BigInteger.valueOf(7)));
   }
 
   private void testOddExamples() {

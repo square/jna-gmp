@@ -27,8 +27,6 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
 import static com.squareup.jnagmp.LibGmp.__gmpz_jacobi;
-import static com.squareup.jnagmp.LibGmp.__gmpz_kronecker_si;
-import static com.squareup.jnagmp.LibGmp.__gmpz_legendre;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
@@ -59,9 +57,9 @@ public final class Gmp {
     }
     // Make a test call, sometimes the error won't occur until you try the native method.
     // 2 ^ 3 = 8, 8 mod 5 = 3
-    BigInteger four = BigInteger.valueOf(4);
     BigInteger two = BigInteger.valueOf(2);
     BigInteger three = BigInteger.valueOf(3);
+    BigInteger four = BigInteger.valueOf(4);
     BigInteger five = BigInteger.valueOf(5);
     BigInteger answer;
 
@@ -75,9 +73,9 @@ public final class Gmp {
       throw new AssertionError("libgmp is loaded but modPowSecure returned the wrong answer");
     }
 
-    int ans = legendre(four, five);
-    if (ans != 1) {
-      throw new AssertionError("libgmp is loaded but legendre returned the wrong answer");
+    int answer_ = jacobi(four, five);
+    if (answer_ != 1) {
+      throw new AssertionError("libgmp is loaded but jacobi returned the wrong answer");
     }
   }
 
@@ -168,38 +166,6 @@ public final class Gmp {
       throw new IllegalArgumentException("p must be odd");
     }
     return INSTANCE.get().jacobiImpl(a, p);
-  }
-
-  /**
-   * Calculate kronecker symbol a|p.
-   *
-   * @param a an integer
-   * @param p the modulus
-   * @return a|p
-   */
-  public static int kronecker(BigInteger a, long p) {
-    return INSTANCE.get().kroneckerImpl(a, p);
-  }
-
-  /**
-   * Calculate legendre symbol a|p.
-   *
-   * @param a must be positive
-   * @param p the modulus must be odd prime
-   * @return a|p
-   * @throws IllegalArgumentException if a is not positive, or p is not positive, or p is not odd
-   */
-  public static int legendre(BigInteger a, BigInteger p) {
-    if (a.signum() < 0) {
-      throw new IllegalArgumentException("a must be non-negative");
-    }
-    if (p.signum() < 0) {
-      throw new IllegalArgumentException("p must be non-negative");
-    }
-    if (!p.testBit(0)) {
-      throw new IllegalArgumentException("p must be odd");
-    }
-    return INSTANCE.get().legendreImpl(a, p);
   }
 
   /**
@@ -301,23 +267,6 @@ public final class Gmp {
     mpz_t pPeer = getPeer(p, sharedOperands[1]);
 
     int res = __gmpz_jacobi(aPeer, pPeer);
-
-    return res;
-  }
-
-  private int kroneckerImpl(BigInteger a, long p) {
-    mpz_t aPeer = getPeer(a, sharedOperands[0]);
-
-    int res = __gmpz_kronecker_si(aPeer, p);
-
-    return res;
-  }
-
-  private int legendreImpl(BigInteger a, BigInteger p) {
-    mpz_t aPeer = getPeer(a, sharedOperands[0]);
-    mpz_t pPeer = getPeer(p, sharedOperands[1]);
-
-    int res = __gmpz_legendre(aPeer, pPeer);
 
     return res;
   }
