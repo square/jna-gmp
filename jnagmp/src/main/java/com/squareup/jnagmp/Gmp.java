@@ -26,9 +26,11 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_export;
 import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
+import static com.squareup.jnagmp.LibGmp.__gmpz_jacobi;
+import static com.squareup.jnagmp.LibGmp.__gmpz_kronecker_si;
+import static com.squareup.jnagmp.LibGmp.__gmpz_legendre;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
-import static com.squareup.jnagmp.LibGmp.__gmpz_legendre;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
 
 /** High level Java API for accessing {@link LibGmp} safely. */
@@ -148,10 +150,42 @@ public final class Gmp {
   }
 
   /**
-   * Calculate legendre symbol a|p.
+   * Calculate jacobi symbol a|p.
    *
    * @param a must be positive
    * @param p the modulus must be odd
+   * @return a|p
+   * @throws IllegalArgumentException if a is not positive, or p is not positive, or p is not odd
+   */
+  public static int jacobi(BigInteger a, BigInteger p) {
+    if (a.signum() < 0) {
+      throw new IllegalArgumentException("a must be non-negative");
+    }
+    if (p.signum() < 0) {
+      throw new IllegalArgumentException("p must be non-negative");
+    }
+    if (!p.testBit(0)) {
+      throw new IllegalArgumentException("p must be odd");
+    }
+    return INSTANCE.get().jacobiImpl(a, p);
+  }
+
+  /**
+   * Calculate kronecker symbol a|p.
+   *
+   * @param a an integer
+   * @param p the modulus
+   * @return a|p
+   */
+  public static int kronecker(BigInteger a, long p) {
+    return INSTANCE.get().kroneckerImpl(a, p);
+  }
+
+  /**
+   * Calculate legendre symbol a|p.
+   *
+   * @param a must be positive
+   * @param p the modulus must be odd prime
    * @return a|p
    * @throws IllegalArgumentException if a is not positive, or p is not positive, or p is not odd
    */
@@ -260,6 +294,23 @@ public final class Gmp {
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
     return new BigInteger(1, mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private int jacobiImpl(BigInteger a, BigInteger p) {
+    mpz_t aPeer = getPeer(a, sharedOperands[0]);
+    mpz_t pPeer = getPeer(p, sharedOperands[1]);
+
+    int res = __gmpz_jacobi(aPeer, pPeer);
+
+    return res;
+  }
+
+  private int kroneckerImpl(BigInteger a, long p) {
+    mpz_t aPeer = getPeer(a, sharedOperands[0]);
+
+    int res = __gmpz_kronecker_si(aPeer, p);
+
+    return res;
   }
 
   private int legendreImpl(BigInteger a, BigInteger p) {

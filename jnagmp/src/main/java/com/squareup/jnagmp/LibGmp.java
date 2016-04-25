@@ -324,8 +324,19 @@ public final class LibGmp {
   public static native int __gmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2);
 
   /**
-   * Calculate the Legendre symbol (a/p). This is defined only for p an odd positive prime, and
-   * for such p it’s identical to the Jacobi symbol.
+   * Calculate the Jacobi symbol (a/b). This is defined only for b odd.
+   */
+  public static native int __gmpz_jacobi(mpz_t a, mpz_t p);
+
+  /**
+   * Calculate the Jacobi symbol (a/b) with the Kronecker extension (a/2)=(2/a)
+   * when a odd, or (a/2)=0 when a even.
+   */
+  public static native int __gmpz_kronecker_si(mpz_t a, long p);
+
+  /**
+   * Calculate the Legendre symbol (a/p). This is defined only for p an odd
+   * positive prime, and for such p it’s identical to the Jacobi symbol.
    */
   public static native int __gmpz_legendre(mpz_t a, mpz_t p);
 
