@@ -323,6 +323,13 @@ public final class LibGmp {
    */
   public static native int __gmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2);
 
+  /**
+   * Calculate the Jacobi symbol (a/p). This code does triple duty as mpz_jacobi, mpz_legendre and
+   * mpz_kronecker.  For ABI compatibility, the link symbol is __gmpz_jacobi, not __gmpz_kronecker,
+   * even though the latter would be more logical.
+   */
+  public static native int __gmpz_jacobi(mpz_t a, mpz_t p);
+
   private LibGmp() {
   }
 }
