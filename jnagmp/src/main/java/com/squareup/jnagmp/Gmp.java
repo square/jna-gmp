@@ -73,8 +73,8 @@ public final class Gmp {
       throw new AssertionError("libgmp is loaded but modPowSecure returned the wrong answer");
     }
 
-    int answer_ = jacobi(four, five);
-    if (answer_ != 1) {
+    int answr = jacobi(four, five);
+    if (answr != 1) {
       throw new AssertionError("libgmp is loaded but jacobi returned the wrong answer");
     }
   }
