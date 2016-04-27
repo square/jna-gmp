@@ -148,7 +148,6 @@ public final class LibGmp {
   }
   // CHECKSTYLE.ON: TypeName match native name
 
-
   // CHECKSTYLE.OFF: MethodName match native names
 
   /** Used on systems with 4-byte size_t. */
@@ -295,12 +294,24 @@ public final class LibGmp {
   public static native void __gmpz_clear(mpz_t x);
 
   /**
+   * Set rop to -op.
+   */
+  public static native void __gmpz_neg(mpz_t rop, mpz_t op);
+
+  /**
    * Set rop to (base raised to exp) modulo mod.
    *
    * Negative exp is supported if an inverse base^-1 mod mod exists (see mpz_invert in Number
    * Theoretic Functions). If an inverse doesn't exist then a divide by zero is raised.
    */
   public static native void __gmpz_powm(mpz_t rop, mpz_t base, mpz_t exp, mpz_t mod);
+
+  /**
+   * Compare op1 and op2. Return a positive value if op1 > op2, zero if op1 = op2, or a negative
+   * value if op1 < op2. We use this function and compare to 0 instead of mpz_sgn because mpz_sgn is
+   * an unexported macro.
+   */
+  public static native int __gmpz_cmp_si(mpz_t op1, NativeLong op2);
 
   /**
    * Set rop to (base raised to exp) modulo mod.

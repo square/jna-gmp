@@ -41,9 +41,8 @@ public class GmpIntegerTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testNegativesDisallowed() {
-    new GmpInteger(BigInteger.valueOf(-1));
+  @Test public void testNegatives() {
+    assertEquals(BigInteger.valueOf(-10), new GmpInteger(BigInteger.valueOf(-10)));
   }
 
   @Test public void testConstructors() {

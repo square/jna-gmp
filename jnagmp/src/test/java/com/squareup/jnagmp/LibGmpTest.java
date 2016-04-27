@@ -23,11 +23,13 @@ import org.junit.After;
 import org.junit.Test;
 
 import static com.squareup.jnagmp.LibGmp.__gmpz_clear;
+import static com.squareup.jnagmp.LibGmp.__gmpz_cmp_si;
 import static com.squareup.jnagmp.LibGmp.__gmpz_export;
 import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init2;
 import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
+import static com.squareup.jnagmp.LibGmp.__gmpz_neg;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
@@ -216,6 +218,56 @@ public class LibGmpTest {
 
       assertEquals(1, readSizeT(count));
       assertEquals(2, scratch.getByte(0));
+    } finally {
+      for (mpz_t mvalue : mvalues) {
+        if (mvalue != null) {
+          __gmpz_clear(mvalue);
+        }
+      }
+    }
+  }
+
+  @Test public void testNegSign() {
+    scratch.write(0, new byte[] {1, 0, 1}, 0, 3);
+    mpz_t[] mvalues = new mpz_t[3];
+    try {
+      for (int i = 0; i < 3; ++i) {
+        mpz_t mvalue = new mpz_t(mpzScratch.share(i * mpz_t.SIZE, mpz_t.SIZE));
+        __gmpz_init(mvalue);
+        mvalues[i] = mvalue;
+        __gmpz_import(mvalue, 1, 1, 1, 1, 0, scratch.share(i));
+      }
+
+      // The first value should be -1
+      __gmpz_neg(mvalues[0], mvalues[0]);
+
+      // Check absolute values.
+      for (int i = 0; i < 3; ++i) {
+        mpz_t result = mvalues[i];
+        __gmpz_export(scratch, count, 1, 1, 1, 0, result);
+
+        if (i == 1) {
+          // The middle value is 0
+          assertEquals(0, readSizeT(count));
+        } else {
+          // The other two are 1 (absolute value is exported)
+          assertEquals(1, readSizeT(count));
+          assertEquals(1, scratch.getByte(0));
+        }
+      }
+
+      // Now comparisons
+      assertEquals(1, __gmpz_cmp_si(mvalues[0], new NativeLong(-2))); // -1 > -2
+      assertEquals(0, __gmpz_cmp_si(mvalues[0], new NativeLong(-1))); // -1 == -1
+      assertEquals(-1, __gmpz_cmp_si(mvalues[0], new NativeLong(0))); // -1 < 0
+
+      assertEquals(1, __gmpz_cmp_si(mvalues[1], new NativeLong(-1))); // 0 > -1
+      assertEquals(0, __gmpz_cmp_si(mvalues[1], new NativeLong(0))); // 0 == 0
+      assertEquals(-1, __gmpz_cmp_si(mvalues[1], new NativeLong(1))); // 0 < 1
+
+      assertEquals(1, __gmpz_cmp_si(mvalues[2], new NativeLong(0))); // 1 > 0
+      assertEquals(0, __gmpz_cmp_si(mvalues[2], new NativeLong(1))); // 1 == 1
+      assertEquals(-1, __gmpz_cmp_si(mvalues[2], new NativeLong(2))); // 1 < 2
     } finally {
       for (mpz_t mvalue : mvalues) {
         if (mvalue != null) {

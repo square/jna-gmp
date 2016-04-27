@@ -18,14 +18,17 @@ package com.squareup.jnagmp;
 import com.squareup.jnagmp.LibGmp.mpz_t;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import java.math.BigInteger;
 
 import static com.squareup.jnagmp.LibGmp.__gmpz_clear;
+import static com.squareup.jnagmp.LibGmp.__gmpz_cmp_si;
 import static com.squareup.jnagmp.LibGmp.__gmpz_export;
 import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
+import static com.squareup.jnagmp.LibGmp.__gmpz_neg;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
@@ -205,7 +208,7 @@ public final class Gmp {
 
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
-    return new BigInteger(1, mpzExport(sharedOperands[3], requiredSize));
+    return new BigInteger(mpzSgn(sharedOperands[3]), mpzExport(sharedOperands[3], requiredSize));
   }
 
   private BigInteger modPowSecureImpl(BigInteger base, BigInteger exp, BigInteger mod) {
@@ -217,7 +220,7 @@ public final class Gmp {
 
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
-    return new BigInteger(1, mpzExport(sharedOperands[3], requiredSize));
+    return new BigInteger(mpzSgn(sharedOperands[3]), mpzExport(sharedOperands[3], requiredSize));
   }
 
   private BigInteger modInverseImpl(BigInteger val, BigInteger mod) {
@@ -231,7 +234,7 @@ public final class Gmp {
 
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
-    return new BigInteger(1, mpzExport(sharedOperands[2], requiredSize));
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
   }
 
   /**
@@ -242,15 +245,18 @@ public final class Gmp {
     if (value instanceof GmpInteger) {
       return ((GmpInteger) value).getPeer();
     }
-    mpzImport(sharedPeer, value.toByteArray());
+    mpzImport(sharedPeer, value.signum(), value.abs().toByteArray());
     return sharedPeer;
   }
 
-  void mpzImport(mpz_t ptr, byte[] bytes) {
+  void mpzImport(mpz_t ptr, int signum, byte[] bytes) {
     int expectedLength = bytes.length;
     ensureBufferSize(expectedLength);
     scratchBuf.write(0, bytes, 0, bytes.length);
     __gmpz_import(ptr, bytes.length, 1, 1, 1, 0, scratchBuf);
+    if (signum < 0) {
+      __gmpz_neg(ptr, ptr);
+    }
   }
 
   private byte[] mpzExport(mpz_t ptr, int requiredSize) {
@@ -261,6 +267,18 @@ public final class Gmp {
     byte[] result = new byte[count];
     scratchBuf.read(0, result, 0, count);
     return result;
+  }
+
+  private static final NativeLong ZERO = new NativeLong();
+
+  int mpzSgn(mpz_t ptr) {
+    int result = __gmpz_cmp_si(ptr, ZERO);
+    if (result < 0) {
+      return -1;
+    } else if (result > 0) {
+      return 1;
+    }
+    return 0;
   }
 
   private void ensureBufferSize(int size) {

@@ -21,8 +21,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 /**
- * A {@link BigInteger} that caches a native peer {@link LibGmp.mpz_t}.  This class may only contain
- * positive values.
+ * A {@link BigInteger} that caches a native peer {@link LibGmp.mpz_t}.
  *
  * <p> Use this class when you plan to perform many operations using this value as an operand.  For
  * example, when doing repeated RSA operations, you would want to construct {@code GmpIntegers} for
@@ -49,10 +48,7 @@ public class GmpInteger extends BigInteger {
   private final MpzMemory mpzMemory = new MpzMemory();
 
   {
-    if (signum() < 0) {
-      throw new IllegalArgumentException("must be non-negative");
-    }
-    Gmp.INSTANCE.get().mpzImport(mpzMemory.peer, super.toByteArray());
+    Gmp.INSTANCE.get().mpzImport(mpzMemory.peer, super.signum(), super.abs().toByteArray());
   }
 
   mpz_t getPeer() {
