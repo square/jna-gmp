@@ -14,6 +14,10 @@ performance improvement would be on the order of 5x faster than Java.
 - Use secure modPow for crypto.  It's slower, but resistent to timing attacks.
 - Use insecure modPow for non-crypto, it's faster.
 
+### modInverse
+
+A faster version of BigInteger.modInverse()
+
 ##Notes
 
 - The maven artifact/jar embeds a precompiled libgmp for some platforms.  LibGmp will
