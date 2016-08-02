@@ -342,10 +342,16 @@ public final class LibGmp {
   public static native int __gmpz_jacobi(mpz_t a, mpz_t p);
 
   /**
-   * Multiply op1 by op2 and put the result in rop.
-   * From: https://gmplib.org/manual/Integer-Arithmetic.html
+   * Set rop to op1 times op2.
+   * From: https://gmplib.org/manual/Integer-Arithmetic.html#index-mpz_005fmul
    */
   public static native void __gmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2);
+
+  /**
+   * Set r to n mod d. The sign of the divisor is ignored; the result is always non-negative.
+   * From: https://gmplib.org/manual/Integer-Division.html#index-mpz_005fmod
+   */
+  public static native void __gmpz_mod(mpz_t r, mpz_t n, mpz_t d);
 
   private LibGmp() {
   }
