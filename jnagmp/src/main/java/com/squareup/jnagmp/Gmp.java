@@ -32,6 +32,7 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_jacobi;
 import static com.squareup.jnagmp.LibGmp.__gmpz_neg;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
+import static com.squareup.jnagmp.LibGmp.__gmpz_mul;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
 
 /** High level Java API for accessing {@link LibGmp} safely. */
@@ -162,6 +163,17 @@ public final class Gmp {
   }
 
   /**
+   * Calculate factor1 * factor2
+   *
+   * @param factor1 to multiply
+   * @param factor2 to multiply
+   * @return factor1 * factor2
+   */
+  public static BigInteger multiply(BigInteger factor1, BigInteger factor2) {
+    return INSTANCE.get().mulImpl(factor1, factor2);
+  }
+
+  /**
    * VISIBLE FOR TESTING. Reuse the same buffers over and over to minimize allocations and native
    * boundary crossings.
    */
@@ -259,6 +271,18 @@ public final class Gmp {
 
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger mulImpl(BigInteger factor1, BigInteger factor2) {
+    mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
+    mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
+    // mpz_t rop = getPeer(rop, sharedOperands[1]);
+
+    __gmpz_mul(sharedOperands[2], factor1Peer, factor2Peer);
+
+    // The result may require as many bits as the sum of the bitlengths of (factor1 and factor2). Add 2 for safety
+    int requiredSize = factor1.bitLength() + factor2.bitLength() + 2;
     return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
   }
 
