@@ -164,7 +164,7 @@ public final class Gmp {
   }
 
   /**
-   * Calculate factor1 * factor2
+   * Calculate factor1 * factor2.
    *
    * @param factor1 to multiply
    * @param factor2 to multiply
@@ -175,7 +175,7 @@ public final class Gmp {
   }
 
   /**
-   * Calculate dividend % modulus
+   * Calculate dividend % modulus.
    *
    * @param dividend
    * @param modulus the modulus
@@ -188,6 +188,24 @@ public final class Gmp {
     }
 
     return INSTANCE.get().modImpl(dividend, modulus);
+  }
+
+  /**
+   * Calculate (factor1 * factor2) % modulus.
+   *
+   * @param factor1
+   * @param factor2
+   * @param modulus the positive modulus
+   * @return (factor1 * factor2) % modulus
+   * @throws ArithmeticException if modulus is non-positive
+   */
+  public static BigInteger modularMultiply(BigInteger factor1, BigInteger factor2,
+                                           BigInteger modulus) {
+    if (modulus.signum() <= 0) {
+      throw new ArithmeticException("modulus must be positive");
+    }
+
+    return INSTANCE.get().mulModImpl(factor1, factor2, modulus);
   }
 
   /**
@@ -297,8 +315,8 @@ public final class Gmp {
 
     __gmpz_mul(sharedOperands[2], factor1Peer, factor2Peer);
 
-    // The result may require as many bits as the sum of the bitlengths of (factor1 and factor2). Add 2 for safety
-    int requiredSize = factor1.bitLength() + factor2.bitLength() + 2;
+    // The result may require as many bits as the sum of the bitlengths of factor1 and factor2.
+    int requiredSize = factor1.bitLength() + factor2.bitLength() + 1;
     return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
   }
 
@@ -311,6 +329,19 @@ public final class Gmp {
     // The result size should be <= mod size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
     return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger mulModImpl(BigInteger factor1, BigInteger factor2, BigInteger mod) {
+    mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
+    mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
+    mpz_t modPeer = getPeer(mod, sharedOperands[2]);
+
+    __gmpz_mul(sharedOperands[3], factor1Peer, factor2Peer);
+    __gmpz_mod(sharedOperands[3], sharedOperands[3], modPeer);
+
+    // The result size should be <= mod size, but round up to the nearest byte.
+    int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[3]), mpzExport(sharedOperands[3], requiredSize));
   }
 
   /**
