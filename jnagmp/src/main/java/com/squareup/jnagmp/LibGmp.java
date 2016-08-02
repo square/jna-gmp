@@ -345,7 +345,7 @@ public final class LibGmp {
    * Multiply op1 by op2 and put the result in rop.
    * From: https://gmplib.org/manual/Integer-Arithmetic.html
    */
-  public static native int __gmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2);
+  public static native void __gmpz_mul(mpz_t rop, mpz_t op1, mpz_t op2);
 
   private LibGmp() {
   }
