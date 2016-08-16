@@ -22,6 +22,28 @@ A faster version of BigInteger.modInverse()
 
 The GMP kronecker implementation generalizes jacobi and legendre symbols.
 
+### modularMultiply, mod, and multiply
+
+A faster way to accomplish BigInteger `(value1 * value2) % modulus`. 
+While GMP mod and multiply are both exposed, invoking them directly may not be more
+efficient than using BigInteger's mod and multiply implementations. If you decide to 
+use them, make sure they're actually faster for your application through benchmarking.
+
+### exactDivide
+
+A *very* fast way to perform `dividend / divisor` **if and only if** `dividend % divisor == 0`.
+That is, if the `dividend` is a whole-number/integer multiple of `divisor`, then exactDivide is
+a much faster way to perform division. If the division operation does not follow the 
+`dividend % divisor == 0` requirement then you will get the wrong answer and no error. This is a 
+limitation of the GMP function (this method is based on:
+[`mpz_divexact`](https://gmplib.org/manual/Integer-Division.html#index-mpz_005fdivexact)). 
+
+### gcd
+
+Finds the greatest common divisor of the two values that are input. It is exactly
+analagous to `BigInteger.gcd()` but **much** faster. When benchmarked with two 6148-bit values
+(sharing a 3074-bit factor) the GMP implementation was about 20x faster. 
+
 ##Notes
 
 - The maven artifact/jar embeds a precompiled libgmp for some platforms.  LibGmp will

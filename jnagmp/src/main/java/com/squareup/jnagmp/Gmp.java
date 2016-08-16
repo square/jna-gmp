@@ -24,7 +24,9 @@ import java.math.BigInteger;
 
 import static com.squareup.jnagmp.LibGmp.__gmpz_clear;
 import static com.squareup.jnagmp.LibGmp.__gmpz_cmp_si;
+import static com.squareup.jnagmp.LibGmp.__gmpz_divexact;
 import static com.squareup.jnagmp.LibGmp.__gmpz_export;
+import static com.squareup.jnagmp.LibGmp.__gmpz_gcd;
 import static com.squareup.jnagmp.LibGmp.__gmpz_import;
 import static com.squareup.jnagmp.LibGmp.__gmpz_init;
 import static com.squareup.jnagmp.LibGmp.__gmpz_invert;
@@ -33,6 +35,8 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_neg;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /** High level Java API for accessing {@link LibGmp} safely. */
 public final class Gmp {
@@ -162,6 +166,28 @@ public final class Gmp {
   }
 
   /**
+   * Divide dividend by divisor. This method only returns correct answers when the division produces
+   * no remainder. Correct answers should not be expected when the divison would result in a
+   * remainder.
+   *
+   * @return dividend / divisor
+   */
+  public static BigInteger exactDivide(BigInteger dividend, BigInteger divisor) {
+    return INSTANCE.get().exactDivImpl(dividend, divisor);
+  }
+
+  /**
+   * Return the greatest common divisor of value1 and value2. The result is always positive even if
+   * one or both input operands are negative. Except if both inputs are zero; then this method
+   * defines gcd(0,0) = 0.
+   *
+   * @return greatest common divisor of value1 and value2
+   */
+  public static BigInteger gcd(BigInteger value1, BigInteger value2) {
+    return INSTANCE.get().gcdImpl(value1, value2);
+  }
+
+  /**
    * VISIBLE FOR TESTING. Reuse the same buffers over and over to minimize allocations and native
    * boundary crossings.
    */
@@ -259,6 +285,29 @@ public final class Gmp {
 
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger exactDivImpl(BigInteger dividend, BigInteger divisor) {
+    mpz_t dividendPeer = getPeer(dividend, sharedOperands[0]);
+    mpz_t divisorPeer = getPeer(divisor, sharedOperands[1]);
+
+    __gmpz_divexact(sharedOperands[2], dividendPeer, divisorPeer);
+
+    // The result size is never larger than the bit length of the dividend minus that of the divisor
+    // plus 1 (but is at least 1 bit long to hold the case that the two values are exactly equal)
+    int requiredSize = max(dividend.bitLength() - divisor.bitLength() + 1, 1);
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger gcdImpl(BigInteger value1, BigInteger value2) {
+    mpz_t value1Peer = getPeer(value1, sharedOperands[0]);
+    mpz_t value2Peer = getPeer(value2, sharedOperands[1]);
+
+    __gmpz_gcd(sharedOperands[2], value1Peer, value2Peer);
+
+    // The result size will be no larger than the smaller of the inputs
+    int requiredSize = min(value1.bitLength(), value2.bitLength());
     return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
   }
 
