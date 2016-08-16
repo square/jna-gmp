@@ -353,6 +353,24 @@ public final class LibGmp {
    */
   public static native void __gmpz_mod(mpz_t r, mpz_t n, mpz_t d);
 
+  /**
+   * Set q to n/d. These functions produce correct results only when it is known in advance
+   * that d divides n.
+   *
+   * These routines are much faster than the other division functions, and are the best choice when
+   * exact division is known to occur, for example reducing a rational to lowest terms.
+   * From: https://gmplib.org/manual/Integer-Division.html#index-mpz_005fdivexact
+   */
+  public static native void __gmpz_divexact(mpz_t q, mpz_t n, mpz_t d);
+
+  /**
+   * Set rop to the greatest common divisor of op1 and op2. The result is always positive even if
+   * one or both input operands are negative. Except if both inputs are zero; then this function
+   * defines gcd(0,0) = 0.
+   * From: https://gmplib.org/manual/Number-Theoretic-Functions.html#index-mpz_005fgcd
+   */
+  public static native void __gmpz_gcd(mpz_t rop, mpz_t op1, mpz_t op2);
+
   private LibGmp() {
   }
 }
