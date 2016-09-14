@@ -175,7 +175,7 @@ public final class Gmp {
    * @param factor2 to multiply
    * @return factor1 * factor2
    */
-  public static BigInteger multiply(BigInteger factor1, BigInteger factor2) {
+  protected static BigInteger multiply(BigInteger factor1, BigInteger factor2) {
     return INSTANCE.get().mulImpl(factor1, factor2);
   }
 
@@ -187,7 +187,7 @@ public final class Gmp {
    * @return dividend mod modulus
    * @throws ArithmeticException if modulus is non-positive
    */
-  public static BigInteger mod(BigInteger dividend, BigInteger modulus) {
+  protected static BigInteger mod(BigInteger dividend, BigInteger modulus) {
     if (modulus.signum() <= 0) {
       throw new ArithmeticException("modulus must be positive");
     }
@@ -214,15 +214,38 @@ public final class Gmp {
   }
 
   /**
+   * Calculate (factor1 * factor2) % modulus.
+   *
+   * @param factor1
+   * @param factor2
+   * @param modulus the positive modulus
+   * @return (factor1 * factor2) % modulus
+   * @throws ArithmeticException if modulus is non-positive
+   */
+  public static BigInteger modularMultiplyAlt(BigInteger factor1, BigInteger factor2,
+                                              BigInteger modulus) {
+    if (modulus.signum() <= 0) {
+      throw new ArithmeticException("modulus must be positive");
+    }
+
+    return INSTANCE.get().mulModImplAlt(factor1, factor2, modulus);
+  }
+
+  /**
    * Divide dividend by divisor. This method only returns correct answers when the division produces
    * no remainder. Correct answers should not be expected when the divison would result in a
    * remainder.
    *
    * @param dividend
    * @param divisor
+   * @throws ArithmeticException if divisor is zero
    * @return dividend / divisor
    */
   public static BigInteger exactDivide(BigInteger dividend, BigInteger divisor) {
+
+    if (divisor.equals(BigInteger.valueOf(0))) {
+      throw new ArithmeticException("divisor can not be zero");
+    }
     return INSTANCE.get().exactDivImpl(dividend, divisor);
   }
 
@@ -255,7 +278,7 @@ public final class Gmp {
   private static final int INITIAL_BUF_SIZE = INITIAL_BUF_BITS / 8;
 
   /** Maximum number of operands we need for any operation. */
-  private static final int MAX_OPERANDS = 4;
+  private static final int MAX_OPERANDS = 6;
 
   private static final int SHARED_MEM_SIZE = mpz_t.SIZE * MAX_OPERANDS + Native.SIZE_T_SIZE;
 
@@ -364,6 +387,7 @@ public final class Gmp {
   }
 
   private BigInteger mulModImpl(BigInteger factor1, BigInteger factor2, BigInteger mod) {
+    // (A * B) mod C
     mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
     mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
     mpz_t modPeer = getPeer(mod, sharedOperands[2]);
@@ -374,6 +398,33 @@ public final class Gmp {
     // The result size should be <= mod size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
     return new BigInteger(mpzSgn(sharedOperands[3]), mpzExport(sharedOperands[3], requiredSize));
+  }
+
+  private BigInteger mulModImplAlt(BigInteger factor1, BigInteger factor2, BigInteger mod) {
+    // (A mod C * B mod C) mod C
+    // 
+    // A -> sharedOperands[0]
+    // B -> sharedOperands[1]
+    // C -> sharedOperands[2]
+    // 
+    // A mod C -> sharedOperands[3]
+    // B mod C -> sharedOperands[0]
+    // (A mod C) * (B mod C) -> sharedOperands[1]
+    // ((A mod C) * (B mod C)) mod C -> sharedOperands[0]
+    mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
+    mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
+    mpz_t modPeer = getPeer(mod, sharedOperands[2]);
+    
+    __gmpz_mod(sharedOperands[3], factor1Peer, modPeer);
+    __gmpz_mod(sharedOperands[0], factor2Peer, modPeer);
+
+    __gmpz_mul(sharedOperands[1], sharedOperands[3], sharedOperands[0]);
+
+    __gmpz_mod(sharedOperands[0], sharedOperands[1], modPeer);
+
+    // The result size should be <= mod size, but round up to the nearest byte.
+    int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[0]), mpzExport(sharedOperands[0], requiredSize));
   }
 
   private BigInteger exactDivImpl(BigInteger dividend, BigInteger divisor) {
