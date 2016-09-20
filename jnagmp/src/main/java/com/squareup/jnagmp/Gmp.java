@@ -210,26 +210,41 @@ public final class Gmp {
       throw new ArithmeticException("modulus must be positive");
     }
 
-    return INSTANCE.get().mulModImpl(factor1, factor2, modulus);
-  }
+    BigInteger result;
 
-  /**
-   * Calculate (factor1 * factor2) % modulus.
-   *
-   * @param factor1
-   * @param factor2
-   * @param modulus the positive modulus
-   * @return (factor1 * factor2) % modulus
-   * @throws ArithmeticException if modulus is non-positive
-   */
-  public static BigInteger modularMultiplyAlt(BigInteger factor1, BigInteger factor2,
-                                              BigInteger modulus) {
-    if (modulus.signum() <= 0) {
-      throw new ArithmeticException("modulus must be positive");
+    // If the maximum bit length of the product factor1*factor2 is greater than two times the bit
+    // length of the modulus then the split mulMod consturction has been shown to be more efficient
+    // (sometimes significnatly so). Otherwise, the standard mulMod construction is marginally
+    // faster.
+
+    if ((factor1.bitLength() + factor2.bitLength()) * 2 > modulus.bitLength()) {
+      // Use ((factor1 mod modulus) * (factor2 mod modulus)) mod modulus construction
+      result = INSTANCE.get().mulModSplitImpl(factor1, factor2, modulus);
+    } else {
+      // Use factor1 * factor2 mod modulus construction
+      result = INSTANCE.get().mulModImpl(factor1, factor2, modulus);
     }
 
-    return INSTANCE.get().mulModImplAlt(factor1, factor2, modulus);
+    return result;
   }
+
+  // /**
+  //  * Calculate (factor1 * factor2) % modulus.
+  //  *
+  //  * @param factor1
+  //  * @param factor2
+  //  * @param modulus the positive modulus
+  //  * @return (factor1 * factor2) % modulus
+  //  * @throws ArithmeticException if modulus is non-positive
+  //  */
+  // public static BigInteger modularMultiplyAlt(BigInteger factor1, BigInteger factor2,
+  //                                             BigInteger modulus) {
+  //   if (modulus.signum() <= 0) {
+  //     throw new ArithmeticException("modulus must be positive");
+  //   }
+  //
+  //   return INSTANCE.get().mulModSplitImpl(factor1, factor2, modulus);
+  // }
 
   /**
    * Divide dividend by divisor. This method only returns correct answers when the division produces
@@ -278,7 +293,7 @@ public final class Gmp {
   private static final int INITIAL_BUF_SIZE = INITIAL_BUF_BITS / 8;
 
   /** Maximum number of operands we need for any operation. */
-  private static final int MAX_OPERANDS = 6;
+  private static final int MAX_OPERANDS = 4;
 
   private static final int SHARED_MEM_SIZE = mpz_t.SIZE * MAX_OPERANDS + Native.SIZE_T_SIZE;
 
@@ -400,13 +415,13 @@ public final class Gmp {
     return new BigInteger(mpzSgn(sharedOperands[3]), mpzExport(sharedOperands[3], requiredSize));
   }
 
-  private BigInteger mulModImplAlt(BigInteger factor1, BigInteger factor2, BigInteger mod) {
+  private BigInteger mulModSplitImpl(BigInteger factor1, BigInteger factor2, BigInteger mod) {
     // (A mod C * B mod C) mod C
-    // 
+    //
     // A -> sharedOperands[0]
     // B -> sharedOperands[1]
     // C -> sharedOperands[2]
-    // 
+    //
     // A mod C -> sharedOperands[3]
     // B mod C -> sharedOperands[0]
     // (A mod C) * (B mod C) -> sharedOperands[1]
@@ -414,7 +429,7 @@ public final class Gmp {
     mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
     mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
     mpz_t modPeer = getPeer(mod, sharedOperands[2]);
-    
+
     __gmpz_mod(sharedOperands[3], factor1Peer, modPeer);
     __gmpz_mod(sharedOperands[0], factor2Peer, modPeer);
 
