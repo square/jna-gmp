@@ -294,7 +294,7 @@ public class GmpTest {
   }
 
   @Test
-  public void testModSmallNumbers() {
+  public void testMod() {
     BigInteger result = mod(BigInteger.valueOf(45), BigInteger.valueOf(7));
 
     assertEquals(BigInteger.valueOf(45 % 7), result);
@@ -345,15 +345,6 @@ public class GmpTest {
                                          + "15589196889537905023642802614345");
 
     assertEquals(expected, mod(dividend, modulus));
-  }
-
-  @Test
-  public void testModArithmeticException() {
-    try {
-      modInverse(BigInteger.ONE, BigInteger.valueOf(-1));
-      fail("ArithmeticException expected");
-    } catch (ArithmeticException expected) {
-    }
   }
 
   @Test

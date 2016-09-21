@@ -170,6 +170,8 @@ public final class Gmp {
 
   /**
    * Calculate factor1 * factor2.
+   * This method exists solely so that the GMP multiply implementation can be tested.
+   * It is slower than using native BigInteger multiplication.
    *
    * @param factor1 to multiply
    * @param factor2 to multiply
@@ -181,6 +183,8 @@ public final class Gmp {
 
   /**
    * Calculate dividend % modulus.
+   * This method exists solely so that the GMP mod implementation can be tested.
+   * It is slower than using native BigInteger mod.
    *
    * @param dividend
    * @param modulus the modulus
@@ -227,24 +231,6 @@ public final class Gmp {
 
     return result;
   }
-
-  // /**
-  //  * Calculate (factor1 * factor2) % modulus.
-  //  *
-  //  * @param factor1
-  //  * @param factor2
-  //  * @param modulus the positive modulus
-  //  * @return (factor1 * factor2) % modulus
-  //  * @throws ArithmeticException if modulus is non-positive
-  //  */
-  // public static BigInteger modularMultiplyAlt(BigInteger factor1, BigInteger factor2,
-  //                                             BigInteger modulus) {
-  //   if (modulus.signum() <= 0) {
-  //     throw new ArithmeticException("modulus must be positive");
-  //   }
-  //
-  //   return INSTANCE.get().mulModSplitImpl(factor1, factor2, modulus);
-  // }
 
   /**
    * Divide dividend by divisor. This method only returns correct answers when the division produces
