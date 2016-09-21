@@ -171,8 +171,12 @@ public final class Gmp {
    * remainder.
    *
    * @return dividend / divisor
+   * @throws ArithmeticException if divisor is zero
    */
   public static BigInteger exactDivide(BigInteger dividend, BigInteger divisor) {
+    if (divisor.signum() == 0) {
+      throw new ArithmeticException("BigInteger divide by zero");
+    }
     return INSTANCE.get().exactDivImpl(dividend, divisor);
   }
 

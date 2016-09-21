@@ -29,7 +29,7 @@ Available on Maven central as `com.squareup.jnagmp:bouncycastle-rsa`.
 - Elijah Zupancic <elijah.zupancic@joyent.com> - Solaris binary build
 - Wilko Henecka <wilko.henecka@nicta.com.au> - modInverse
 - David Ruescas <fastness@gmail.com> - kronecker
-- Jacob Wilder <os@jacobwilder.org> - modularMultiply, gcd, exactDivide
+- Jacob Wilder <os@jacobwilder.org> - gcd, exactDivide, native stubs for mul and mod
 
 ## Licensing
 
