@@ -22,6 +22,9 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import java.math.BigInteger;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import static com.squareup.jnagmp.LibGmp.__gmpz_clear;
 import static com.squareup.jnagmp.LibGmp.__gmpz_cmp_si;
 import static com.squareup.jnagmp.LibGmp.__gmpz_export;
@@ -32,6 +35,10 @@ import static com.squareup.jnagmp.LibGmp.__gmpz_jacobi;
 import static com.squareup.jnagmp.LibGmp.__gmpz_neg;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm;
 import static com.squareup.jnagmp.LibGmp.__gmpz_powm_sec;
+import static com.squareup.jnagmp.LibGmp.__gmpz_mul;
+import static com.squareup.jnagmp.LibGmp.__gmpz_mod;
+import static com.squareup.jnagmp.LibGmp.__gmpz_divexact;
+import static com.squareup.jnagmp.LibGmp.__gmpz_gcd;
 import static com.squareup.jnagmp.LibGmp.readSizeT;
 
 /** High level Java API for accessing {@link LibGmp} safely. */
@@ -162,6 +169,102 @@ public final class Gmp {
   }
 
   /**
+   * Calculate factor1 * factor2.
+   * This method exists solely so that the GMP multiply implementation can be tested.
+   * It is slower than using native BigInteger multiplication.
+   *
+   * @param factor1 to multiply
+   * @param factor2 to multiply
+   * @return factor1 * factor2
+   */
+  protected static BigInteger multiply(BigInteger factor1, BigInteger factor2) {
+    return INSTANCE.get().mulImpl(factor1, factor2);
+  }
+
+  /**
+   * Calculate dividend % modulus.
+   * This method exists solely so that the GMP mod implementation can be tested.
+   * It is slower than using native BigInteger mod.
+   *
+   * @param dividend
+   * @param modulus the modulus
+   * @return dividend mod modulus
+   * @throws ArithmeticException if modulus is non-positive
+   */
+  protected static BigInteger mod(BigInteger dividend, BigInteger modulus) {
+    if (modulus.signum() <= 0) {
+      throw new ArithmeticException("modulus must be positive");
+    }
+
+    return INSTANCE.get().modImpl(dividend, modulus);
+  }
+
+  /**
+   * Calculate (factor1 * factor2) % modulus.
+   *
+   * @param factor1
+   * @param factor2
+   * @param modulus the positive modulus
+   * @return (factor1 * factor2) % modulus
+   * @throws ArithmeticException if modulus is non-positive
+   */
+  public static BigInteger modularMultiply(BigInteger factor1, BigInteger factor2,
+                                           BigInteger modulus) {
+    if (modulus.signum() <= 0) {
+      throw new ArithmeticException("modulus must be positive");
+    }
+
+    BigInteger result;
+
+    // If the maximum bit length of the product factor1*factor2 is greater than two times the bit
+    // length of the modulus then the split mulMod consturction has been shown to be more efficient
+    // (sometimes significnatly so). Otherwise, the standard mulMod construction is marginally
+    // faster.
+
+    if ((factor1.bitLength() + factor2.bitLength()) * 2 > modulus.bitLength()) {
+      // Use ((factor1 mod modulus) * (factor2 mod modulus)) mod modulus construction
+      result = INSTANCE.get().mulModSplitImpl(factor1, factor2, modulus);
+    } else {
+      // Use factor1 * factor2 mod modulus construction
+      result = INSTANCE.get().mulModImpl(factor1, factor2, modulus);
+    }
+
+    return result;
+  }
+
+  /**
+   * Divide dividend by divisor. This method only returns correct answers when the division produces
+   * no remainder. Correct answers should not be expected when the divison would result in a
+   * remainder.
+   *
+   * @param dividend
+   * @param divisor
+   * @throws ArithmeticException if divisor is zero
+   * @return dividend / divisor
+   */
+  public static BigInteger exactDivide(BigInteger dividend, BigInteger divisor) {
+
+    if (divisor.equals(BigInteger.valueOf(0))) {
+      throw new ArithmeticException("divisor can not be zero");
+    }
+    return INSTANCE.get().exactDivImpl(dividend, divisor);
+  }
+
+  /**
+   * Return the greatest common divisor of value1 and value2. The result is always positive even if
+   * one or both input operands are negative. Except if both inputs are zero; then this method
+   * defines gcd(0,0) = 0.
+   *
+   * @param value1
+   * @param value2
+   * @return greatest common divisor of value1 and value2
+   */
+  public static BigInteger gcd(BigInteger value1, BigInteger value2) {
+    return INSTANCE.get().gcdImpl(value1, value2);
+  }
+
+
+  /**
    * VISIBLE FOR TESTING. Reuse the same buffers over and over to minimize allocations and native
    * boundary crossings.
    */
@@ -259,6 +362,92 @@ public final class Gmp {
 
     // The result size should be <= modulus size, but round up to the nearest byte.
     int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger mulImpl(BigInteger factor1, BigInteger factor2) {
+    mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
+    mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
+
+    __gmpz_mul(sharedOperands[2], factor1Peer, factor2Peer);
+
+    // The result may require as many bits as the sum of the bitlengths of factor1 and factor2.
+    int requiredSize = factor1.bitLength() + factor2.bitLength() + 1;
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger modImpl(BigInteger dividend, BigInteger mod) {
+    mpz_t dividendPeer = getPeer(dividend, sharedOperands[0]);
+    mpz_t modPeer = getPeer(mod, sharedOperands[1]);
+
+    __gmpz_mod(sharedOperands[2], dividendPeer, modPeer);
+
+    // The result size should be <= mod size, but round up to the nearest byte.
+    int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger mulModImpl(BigInteger factor1, BigInteger factor2, BigInteger mod) {
+    // (A * B) mod C
+    mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
+    mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
+    mpz_t modPeer = getPeer(mod, sharedOperands[2]);
+
+    __gmpz_mul(sharedOperands[3], factor1Peer, factor2Peer);
+    __gmpz_mod(sharedOperands[3], sharedOperands[3], modPeer);
+
+    // The result size should be <= mod size, but round up to the nearest byte.
+    int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[3]), mpzExport(sharedOperands[3], requiredSize));
+  }
+
+  private BigInteger mulModSplitImpl(BigInteger factor1, BigInteger factor2, BigInteger mod) {
+    // (A mod C * B mod C) mod C
+    //
+    // A -> sharedOperands[0]
+    // B -> sharedOperands[1]
+    // C -> sharedOperands[2]
+    //
+    // A mod C -> sharedOperands[3]
+    // B mod C -> sharedOperands[0]
+    // (A mod C) * (B mod C) -> sharedOperands[1]
+    // ((A mod C) * (B mod C)) mod C -> sharedOperands[0]
+    mpz_t factor1Peer = getPeer(factor1, sharedOperands[0]);
+    mpz_t factor2Peer = getPeer(factor2, sharedOperands[1]);
+    mpz_t modPeer = getPeer(mod, sharedOperands[2]);
+
+    __gmpz_mod(sharedOperands[3], factor1Peer, modPeer);
+    __gmpz_mod(sharedOperands[0], factor2Peer, modPeer);
+
+    __gmpz_mul(sharedOperands[1], sharedOperands[3], sharedOperands[0]);
+
+    __gmpz_mod(sharedOperands[0], sharedOperands[1], modPeer);
+
+    // The result size should be <= mod size, but round up to the nearest byte.
+    int requiredSize = (mod.bitLength() + 7) / 8;
+    return new BigInteger(mpzSgn(sharedOperands[0]), mpzExport(sharedOperands[0], requiredSize));
+  }
+
+  private BigInteger exactDivImpl(BigInteger dividend, BigInteger divisor) {
+    mpz_t dividendPeer = getPeer(dividend, sharedOperands[0]);
+    mpz_t divisorPeer = getPeer(divisor, sharedOperands[1]);
+
+    __gmpz_divexact(sharedOperands[2], dividendPeer, divisorPeer);
+
+    // The result size is never larger than the bit length of the dividend minus that of the divisor
+    // plus 1 (but is at least 1 bit long to hold the case that the two values are exactly equal)
+    int requiredSize = max(dividend.bitLength() - divisor.bitLength() + 1, 1);
+    return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
+  }
+
+  private BigInteger gcdImpl(BigInteger value1, BigInteger value2) {
+    mpz_t value1Peer = getPeer(value1, sharedOperands[0]);
+    mpz_t value2Peer = getPeer(value2, sharedOperands[1]);
+
+    __gmpz_gcd(sharedOperands[2], value1Peer, value2Peer);
+
+    // The result size will be no larger than the smaller of the inputs
+    int requiredSize = min(value1.bitLength(), value2.bitLength());
     return new BigInteger(mpzSgn(sharedOperands[2]), mpzExport(sharedOperands[2], requiredSize));
   }
 
