@@ -65,7 +65,7 @@ public class LibGmpTest {
   }
 
   @Test public void testVersion() {
-    assertEquals("5.1.3", LibGmp.__gmp_version);
+    assertEquals("6.1.1", LibGmp.__gmp_version);
   }
 
   @Test public void testInitClear() {
