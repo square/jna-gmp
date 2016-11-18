@@ -28,7 +28,7 @@ $(GMP).tar.bz2:
 
 $(GMP)/configure: $(GMP).tar.bz2
 	-mkdir $(GMP)
-	shasum -c $(GMP).tar.bz2.sha512
+	$(which sha1sum || which shasum) -c $(GMP).tar.bz2.sha512
 	tar -xjf $< -C $(GMP) --strip-components 1
 	touch -c $(GMP)/configure
 
