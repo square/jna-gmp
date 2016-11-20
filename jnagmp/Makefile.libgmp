@@ -3,7 +3,7 @@
 GMP=gmp-6.1.1
 # We build with debugging symbols enabled so that users of the library have a
 # chance of figuring out what went wrong when there is a crash.
-CFLAGS=-g
+CFLAGS='-g'
 
 # Converts the architecture name as returned from uname -m to a format that
 # the JVM understands. ARCH is part of the platform string that the JVM
@@ -11,7 +11,7 @@ CFLAGS=-g
 ARCH=$(shell uname -m | sed -e 's/x86_64/x86-64/g' \
                             -e 's/amd64/x86-64/g' \
                             -e 's/i386/x86/g' \
-                            -e 's/|i686/x86/g' \
+                            -e 's/i686/x86/g' \
                             -e 's/powerpc/ppc/g' \
                             -e 's/powerpc64/ppc64/g' \
                             -e 's/^arm.*/arm/g')
@@ -19,7 +19,7 @@ ARCH=$(shell uname -m | sed -e 's/x86_64/x86-64/g' \
 # Like architecture the JVM has set of predefined OS names, so we need to convert
 # the value output from uname to something that the JVM understands.
 OS=$(shell uname | sed -e 's/CYGWIN.*/win32/g' \
-	                   -e 's/MINGW32.*/win32/g' \
+                       -e 's/MINGW32.*/win32/g' \
                        -e 's/SunOS.*/sunos/g' \
                        -e 's/NetBSD/netbsd/g' \
                        -e 's/GNU\/kFreeBSD/kfreebsd/g' \
@@ -34,6 +34,12 @@ OS=$(shell uname | sed -e 's/CYGWIN.*/win32/g' \
 ifeq ($(OS), darwin)
 	LIBGMP=$(GMP)/.libs/libgmp.dylib
 	PLATFORM=$(OS)
+else ifeq ($(OS)-$(ARCH), sunos-i86pc)
+	# uname -m doesn't give us a coherent answer for Solaris platforms, so
+	# we have to do an additional inspection
+	ARCH=$(shell isainfo -b | sed -e 's/64/x86-64/g' -e 's/32/x86/g')
+        LIBGMP=$(GMP)/.libs/libgmp.so
+        PLATFORM=$(OS)-$(ARCH)
 else
 	LIBGMP=$(GMP)/.libs/libgmp.so
 	PLATFORM=$(OS)-$(ARCH)
