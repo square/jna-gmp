@@ -19,7 +19,7 @@ ARCH=$(shell uname -m | sed -e 's/x86_64/x86-64/g' \
 # Like architecture the JVM has set of predefined OS names, so we need to convert
 # the value output from uname to something that the JVM understands.
 OS=$(shell uname | sed -e 's/CYGWIN.*/win32/g' \
-	               -e 's/MINGW32.*/win32/g' \
+                       -e 's/MINGW32.*/win32/g' \
                        -e 's/SunOS.*/sunos/g' \
                        -e 's/NetBSD/netbsd/g' \
                        -e 's/GNU\/kFreeBSD/kfreebsd/g' \
