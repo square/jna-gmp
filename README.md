@@ -20,11 +20,12 @@ Available on Maven central as `com.squareup.jnagmp:bouncycastle-rsa`.
 ## Contributors
 
 - Scott Blum <dragonsinth@gmail.com>
-- Jake Wharton <jakewharton@gmail.com>
-- Nathan McCauley <mccauley@squareup.com>
-- Daniele Perito <daniele@squareup.com>
-- Josh Humphries <jh@squareup.com>
-- Sam Quigley <sq@squareup.com>
+- Jake Wharton <jakewharton@gmail.com> - project management
+- Jesse Wilson <jwilson@squareup.com> - project management
+- Nathan McCauley <mccauley@squareup.com> - initial security review
+- Daniele Perito <daniele@squareup.com> - initial security review
+- Sam Quigley <sq@squareup.com> - initial security review
+- Josh Humphries <jh@squareup.com> - initial code review
 - Christian Meier <meier.kristian@gmail.com> - classloader fix
 - Elijah Zupancic <elijah.zupancic@joyent.com> - Solaris binary build, Makefile
 - Wilko Henecka <wilko.henecka@nicta.com.au> - modInverse
