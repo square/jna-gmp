@@ -1,9 +1,6 @@
 # Copyright 2012, Square, Inc.
 
 GMP=gmp-6.1.1
-# We build with debugging symbols enabled so that users of the library have a
-# chance of figuring out what went wrong when there is a crash.
-CFLAGS='-g'
 
 # Converts the architecture name as returned from uname -m to a format that
 # the JVM understands. ARCH is part of the platform string that the JVM
@@ -57,7 +54,7 @@ $(GMP)/configure: $(GMP).tar.bz2
 	touch -c $(GMP)/configure
 
 $(GMP)/gmp.h $(GMP)/Makefile: $(GMP)/configure
-	cd $(GMP); ./configure --enable-fat --disable-static CFLAGS=$(CFLAGS)
+	cd $(GMP); ./configure --enable-fat --disable-static
 
 $(LIBGMP): $(GMP)/gmp.h $(GMP)/Makefile
 	$(MAKE) -C $(GMP)/ all check
