@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+Version 2.0.0 *(2016-11-??)*
+----------------------------
+
+ * New: support for modInverse, mpz_kronecker,exactDivide, gcd
+ * New: native stubs for mul and mod (no porcelain)
+ * Fixed: support negative integers
+ * Upgrade: embedded LibGMP updated from 5.1.3 -> 6.1.1
+
 Version 1.1.0 *(2016-03-06)*
 ----------------------------
 

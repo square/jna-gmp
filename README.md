@@ -26,10 +26,11 @@ Available on Maven central as `com.squareup.jnagmp:bouncycastle-rsa`.
 - Josh Humphries <jh@squareup.com>
 - Sam Quigley <sq@squareup.com>
 - Christian Meier <meier.kristian@gmail.com> - classloader fix
-- Elijah Zupancic <elijah.zupancic@joyent.com> - Solaris binary build
+- Elijah Zupancic <elijah.zupancic@joyent.com> - Solaris binary build, Makefile
 - Wilko Henecka <wilko.henecka@nicta.com.au> - modInverse
 - David Ruescas <fastness@gmail.com> - kronecker
 - Jacob Wilder <os@jacobwilder.org> - gcd, exactDivide, native stubs for mul and mod
+- Per Allansson <pallansson@gmail.com> - libgmp 6.1.1 update
 
 ## Licensing
 
