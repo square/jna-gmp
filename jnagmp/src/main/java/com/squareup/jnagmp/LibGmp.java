@@ -307,9 +307,9 @@ public final class LibGmp {
   public static native void __gmpz_powm(mpz_t rop, mpz_t base, mpz_t exp, mpz_t mod);
 
   /**
-   * Compare op1 and op2. Return a positive value if op1 > op2, zero if op1 = op2, or a negative
-   * value if op1 < op2. We use this function and compare to 0 instead of mpz_sgn because mpz_sgn is
-   * an unexported macro.
+   * Compare op1 and op2. Return a positive value if op1 &gt; op2, zero if op1 = op2, or a negative
+   * value if op1 &lt; op2. We use this function and compare to 0 instead of mpz_sgn because mpz_sgn
+   * is an unexported macro.
    */
   public static native int __gmpz_cmp_si(mpz_t op1, NativeLong op2);
 
@@ -327,10 +327,10 @@ public final class LibGmp {
 
   /**
    * Compute the inverse of op1 modulo op2 and put the result in rop. If the inverse exists, the
-   * return value is non-zero and rop will satisfy 0 <= rop < abs(op2) (with rop = 0 possible only
-   * when abs(op2) = 1, i.e., in the somewhat degenerate zero ring). If an inverse doesn’t exist the
-   * return value is zero and rop is undefined. The behaviour of this function is undefined when op2
-   * is zero.
+   * return value is non-zero and rop will satisfy 0 &lt;= rop &lt; abs(op2) (with rop = 0 possible
+   * only when abs(op2) = 1, i.e., in the somewhat degenerate zero ring). If an inverse doesn’t
+   * exist the return value is zero and rop is undefined. The behaviour of this function is
+   * undefined when op2 is zero.
    */
   public static native int __gmpz_invert(mpz_t rop, mpz_t op1, mpz_t op2);
 
