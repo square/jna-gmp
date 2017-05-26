@@ -324,7 +324,7 @@ public class GmpTest {
     }
 
     try {
-      modPow(1, -1, 1);
+      modPow(0, -1, 3);
       fail("ArithmeticException expected");
     } catch (ArithmeticException expected) {
     }
