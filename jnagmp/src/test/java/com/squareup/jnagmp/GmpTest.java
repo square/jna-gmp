@@ -106,18 +106,21 @@ public class GmpTest {
     strategy = JAVA;
     testOddExamples();
     testEvenExamples();
+    testNegativeExponentExamples();
   }
 
   @Test public void testExamplesInsecure() {
     strategy = INSECURE;
     testOddExamples();
     testEvenExamples();
+    testNegativeExponentExamples();
   }
 
   @Test public void testExamplesInsecureGmpInts() {
     strategy = INSECURE_GMP_INTS;
     testOddExamples();
     testEvenExamples();
+    testNegativeExponentExamples();
   }
 
   @Test public void testExamplesSecure() {
@@ -307,6 +310,11 @@ public class GmpTest {
     assertEquals(0, modPow(2, 3, 8));
   }
 
+  private void testNegativeExponentExamples() {
+    assertEquals(3, modPow(2, -1, 5));
+    assertEquals(1, modPow(4, -3, 7));
+  }
+
   @Test public void testSignErrorsInsecure() {
     strategy = INSECURE;
     try {
@@ -317,8 +325,8 @@ public class GmpTest {
 
     try {
       modPow(1, -1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
+      fail("ArithmeticException expected");
+    } catch (ArithmeticException expected) {
     }
   }
 

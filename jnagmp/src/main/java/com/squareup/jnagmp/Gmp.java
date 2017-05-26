@@ -116,7 +116,8 @@ public final class Gmp {
       throw new IllegalArgumentException("base must be non-negative");
     }
     if (exponent.signum() < 0) {
-      throw new IllegalArgumentException("exponent must be non-negative");
+      base = Gmp.modInverse(base, modulus);
+      exponent = exponent.negate();
     }
     return INSTANCE.get().modPowInsecureImpl(base, exponent, modulus);
   }
