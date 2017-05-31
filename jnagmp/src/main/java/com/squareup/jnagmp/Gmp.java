@@ -104,7 +104,8 @@ public final class Gmp {
    * @param exponent the exponent
    * @param modulus the modulus
    * @return the (base ^ exponent) % modulus
-   * @throws ArithmeticException if modulus is non-positive, or the exponent is negative and the base cannot be inverted
+   * @throws ArithmeticException if modulus is non-positive, or the exponent is negative and the
+   * base cannot be inverted
    */
   public static BigInteger modPowInsecure(BigInteger base, BigInteger exponent,
       BigInteger modulus) {
@@ -124,7 +125,8 @@ public final class Gmp {
    * @param exponent the exponent
    * @param modulus the modulus
    * @return the (base ^ exponent) % modulus
-   * @throws ArithmeticException if modulus is non-positive, or the exponent is negative and the base cannot be inverted
+   * @throws ArithmeticException if modulus is non-positive, or the exponent is negative and the
+   * base cannot be inverted
    * @throws IllegalArgumentException if modulus is even
    */
   public static BigInteger modPowSecure(BigInteger base, BigInteger exponent, BigInteger modulus) {
