@@ -104,16 +104,12 @@ public final class Gmp {
    * @param exponent the exponent
    * @param modulus the modulus
    * @return the (base ^ exponent) % modulus
-   * @throws ArithmeticException if modulus is non-positive
-   * @throws IllegalArgumentException if modulus is even, base is negative, or exponent is negative
+   * @throws ArithmeticException if modulus is non-positive, or the exponent is negative and the base cannot be inverted
    */
   public static BigInteger modPowInsecure(BigInteger base, BigInteger exponent,
       BigInteger modulus) {
     if (modulus.signum() <= 0) {
       throw new ArithmeticException("modulus must be positive");
-    }
-    if (base.signum() < 0) {
-      throw new IllegalArgumentException("base must be non-negative");
     }
     if (exponent.signum() < 0) {
       base = Gmp.modInverse(base, modulus);
@@ -132,8 +128,8 @@ public final class Gmp {
    * @param exponent the exponent
    * @param modulus the modulus
    * @return the (base ^ exponent) % modulus
-   * @throws ArithmeticException if modulus is non-positive
-   * @throws IllegalArgumentException if modulus is even, base is negative, or exponent is negative
+   * @throws ArithmeticException if modulus is non-positive, or the exponent is negative and the base cannot be inverted
+   * @throws IllegalArgumentException if modulus is even
    */
   public static BigInteger modPowSecure(BigInteger base, BigInteger exponent, BigInteger modulus) {
     if (modulus.signum() <= 0) {
@@ -142,11 +138,9 @@ public final class Gmp {
     if (!modulus.testBit(0)) {
       throw new IllegalArgumentException("modulus must be odd");
     }
-    if (base.signum() < 0) {
-      throw new IllegalArgumentException("base must be non-negative");
-    }
     if (exponent.signum() < 0) {
-      throw new IllegalArgumentException("exponent must be non-negative");
+      base = Gmp.modInverse(base, modulus);
+      exponent = exponent.negate();
     }
     return INSTANCE.get().modPowSecureImpl(base, exponent, modulus);
   }

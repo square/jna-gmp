@@ -106,21 +106,18 @@ public class GmpTest {
     strategy = JAVA;
     testOddExamples();
     testEvenExamples();
-    testNegativeExponentExamples();
   }
 
   @Test public void testExamplesInsecure() {
     strategy = INSECURE;
     testOddExamples();
     testEvenExamples();
-    testNegativeExponentExamples();
   }
 
   @Test public void testExamplesInsecureGmpInts() {
     strategy = INSECURE_GMP_INTS;
     testOddExamples();
     testEvenExamples();
-    testNegativeExponentExamples();
   }
 
   @Test public void testExamplesSecure() {
@@ -310,44 +307,9 @@ public class GmpTest {
     assertEquals(0, modPow(2, 3, 8));
   }
 
-  private void testNegativeExponentExamples() {
-    assertEquals(3, modPow(2, -1, 5));
-    assertEquals(1, modPow(4, -3, 7));
-  }
-
-  @Test public void testSignErrorsInsecure() {
-    strategy = INSECURE;
-    try {
-      modPow(-1, 1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-    }
-
-    try {
-      modPow(0, -1, 3);
-      fail("ArithmeticException expected");
-    } catch (ArithmeticException expected) {
-    }
-  }
-
-  @Test public void testSignErrorsSecure() {
-    strategy = SECURE;
-    try {
-      modPow(-1, 1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-    }
-
-    try {
-      modPow(1, -1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-    }
-  }
-
   @Test public void testSmallExhaustiveInsecure() {
-    for (int base = 10; base >= 0; --base) {
-      for (int exp = 10; exp >= 0; --exp) {
+    for (int base = 10; base >= -10; --base) {
+      for (int exp = 10; exp >= -10; --exp) {
         for (int mod = 10; mod >= -1; --mod) {
           this.strategy = JAVA;
           Object expected;
@@ -372,8 +334,8 @@ public class GmpTest {
   }
 
   @Test public void testSmallExhaustiveSecure() {
-    for (int base = 10; base >= 0; --base) {
-      for (int exp = 10; exp >= 0; --exp) {
+    for (int base = 10; base >= -10; --base) {
+      for (int exp = 10; exp >= -10; --exp) {
         for (int mod = 10; mod >= -1; --mod) {
           this.strategy = JAVA;
           Object expected;
