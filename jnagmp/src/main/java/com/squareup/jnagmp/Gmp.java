@@ -111,10 +111,6 @@ public final class Gmp {
     if (modulus.signum() <= 0) {
       throw new ArithmeticException("modulus must be positive");
     }
-    if (exponent.signum() < 0) {
-      base = Gmp.modInverse(base, modulus);
-      exponent = exponent.negate();
-    }
     return INSTANCE.get().modPowInsecureImpl(base, exponent, modulus);
   }
 
@@ -137,10 +133,6 @@ public final class Gmp {
     }
     if (!modulus.testBit(0)) {
       throw new IllegalArgumentException("modulus must be odd");
-    }
-    if (exponent.signum() < 0) {
-      base = Gmp.modInverse(base, modulus);
-      exponent = exponent.negate();
     }
     return INSTANCE.get().modPowSecureImpl(base, exponent, modulus);
   }
@@ -250,9 +242,21 @@ public final class Gmp {
   }
 
   private BigInteger modPowInsecureImpl(BigInteger base, BigInteger exp, BigInteger mod) {
+    boolean invert = exp.signum() < 0;
+    if (invert) {
+      exp = exp.negate();
+    }
+
     mpz_t basePeer = getPeer(base, sharedOperands[0]);
     mpz_t expPeer = getPeer(exp, sharedOperands[1]);
     mpz_t modPeer = getPeer(mod, sharedOperands[2]);
+
+    if (invert) {
+      int res = __gmpz_invert(basePeer, basePeer, modPeer);
+      if (res == 0) {
+        throw new ArithmeticException("val not invertible");
+      }
+    }
 
     __gmpz_powm(sharedOperands[3], basePeer, expPeer, modPeer);
 
@@ -262,9 +266,21 @@ public final class Gmp {
   }
 
   private BigInteger modPowSecureImpl(BigInteger base, BigInteger exp, BigInteger mod) {
+    boolean invert = exp.signum() < 0;
+    if (invert) {
+      exp = exp.negate();
+    }
+
     mpz_t basePeer = getPeer(base, sharedOperands[0]);
     mpz_t expPeer = getPeer(exp, sharedOperands[1]);
     mpz_t modPeer = getPeer(mod, sharedOperands[2]);
+
+    if (invert) {
+      int res = __gmpz_invert(basePeer, basePeer, modPeer);
+      if (res == 0) {
+        throw new ArithmeticException("val not invertible");
+      }
+    }
 
     __gmpz_powm_sec(sharedOperands[3], basePeer, expPeer, modPeer);
 
