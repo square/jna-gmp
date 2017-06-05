@@ -307,39 +307,9 @@ public class GmpTest {
     assertEquals(0, modPow(2, 3, 8));
   }
 
-  @Test public void testSignErrorsInsecure() {
-    strategy = INSECURE;
-    try {
-      modPow(-1, 1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-    }
-
-    try {
-      modPow(1, -1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-    }
-  }
-
-  @Test public void testSignErrorsSecure() {
-    strategy = SECURE;
-    try {
-      modPow(-1, 1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-    }
-
-    try {
-      modPow(1, -1, 1);
-      fail("IllegalArgumentException expected");
-    } catch (IllegalArgumentException expected) {
-    }
-  }
-
   @Test public void testSmallExhaustiveInsecure() {
-    for (int base = 10; base >= 0; --base) {
-      for (int exp = 10; exp >= 0; --exp) {
+    for (int base = 10; base >= -10; --base) {
+      for (int exp = 10; exp >= -10; --exp) {
         for (int mod = 10; mod >= -1; --mod) {
           this.strategy = JAVA;
           Object expected;
@@ -364,8 +334,8 @@ public class GmpTest {
   }
 
   @Test public void testSmallExhaustiveSecure() {
-    for (int base = 10; base >= 0; --base) {
-      for (int exp = 10; exp >= 0; --exp) {
+    for (int base = 10; base >= -10; --base) {
+      for (int exp = 10; exp >= -10; --exp) {
         for (int mod = 10; mod >= -1; --mod) {
           this.strategy = JAVA;
           Object expected;

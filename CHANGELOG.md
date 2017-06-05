@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 2.0.? *(2017-??-??)*
+----------------------------
+
+ * Fixed: modPow: support negative base, exponent.
+ * Upgrade: jna updated from 4.0.0 -> 4.4.0 to support AIX
+
 Version 2.0.0 *(2016-11-29)*
 ----------------------------
 
