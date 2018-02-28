@@ -4,8 +4,10 @@ Change Log
 Version 2.0.? *(2017-??-??)*
 ----------------------------
 
+ * New: Docker build for linux-x86-64 libgmp binary
+ * Fixed: reduced required GLIBC to GLIBC_2.7
  * Fixed: modPow: support negative base, exponent.
- * Upgrade: jna updated from 4.0.0 -> 4.4.0 to support AIX
+ * Upgrade: jna updated from 4.0.0 -> 4.5.1 to support AIX, reduce required GLIBC version to GLIBC_2.7
 
 Version 2.0.0 *(2016-11-29)*
 ----------------------------
