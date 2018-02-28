@@ -60,6 +60,7 @@ $(LIBGMP): $(GMP)/gmp.h $(GMP)/Makefile
 	$(MAKE) -C $(GMP)/ all check
 
 install: $(LIBGMP)
+	mkdir -p src/main/resources
 	cp -f $(GMP)/COPYING.LESSERv3 src/main/resources/COPYING.LIBGMP
 	mkdir -p src/main/resources/$(PLATFORM)
 	cp -f $< src/main/resources/$(PLATFORM)/

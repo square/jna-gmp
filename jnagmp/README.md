@@ -42,3 +42,18 @@ analagous to `BigInteger.gcd()` but **much** faster. When benchmarked with two 6
 - The maven artifact/jar embeds a precompiled libgmp for some platforms.  LibGmp will
 try to load the native library from the Java classpath first. If that fails, it falls
 back to trying a system-installed libgmp. We are missing binaries for many platforms.
+
+## Building Native Library
+
+Below are instructions for building the libgmp library that ships with this module
+
+#### Linux
+There is an included Dockerfile that can be used to compile libgmp with 
+
+First build the Docker image
+
+    docker build -t jnagmp-linux-x86-64 -f Dockerfile.linux-x86-64 .
+    
+Next run the Docker image which will execute the [Makefile](Makefile.libgmp) and output the compiled library in to _src/main/resources_
+
+    docker run -v $(pwd)/src/main/resources:/build/src/main/resources -t jnagmp-linux-x86-64
