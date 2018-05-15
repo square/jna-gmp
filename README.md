@@ -1,6 +1,6 @@
 # JNA GMP project
 
-A minimal JNA wrapper around the
+A Java JNA wrapper around the
 [GNU Multiple Precision Arithmetic Library](http://gmplib.org/) ("libgmp").
 
 ## Features
