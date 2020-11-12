@@ -17,6 +17,12 @@ Example module that shows integrating JNA GMP with Bouncy Castle.
 
 Available on Maven central as `com.squareup.jnagmp:bouncycastle-rsa`.
 
+### [sc-rsa](sc-rsa/README.md)
+
+Example module that shows integrating JNA GMP with Spongy Castle.
+
+Available on Maven central as `com.squareup.jnagmp:spongycastle-rsa`
+
 ## Contributors
 
 - Scott Blum <dragonsinth@gmail.com>
